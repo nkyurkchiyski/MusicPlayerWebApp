@@ -1,0 +1,23 @@
+# This file is the entry point to configure your own HTTP routes.
+# Files in the routes/ subdirectory configure the routes for your dependencies.
+
+#index:
+#    path: /
+#    defaults: { _controller: 'App\Controller\DefaultController::index' }
+
+songs:
+  type: rest
+  resource: App\Controller\SongController
+  prefix: api
+artists:
+  type: rest
+  resource: App\Controller\ArtistController
+  prefix: api
+albums:
+  type: rest
+  resource: App\Controller\AlbumController
+  prefix: api
+genres:
+  type: rest
+  resource: App\Controller\GenreController
+  prefix: api

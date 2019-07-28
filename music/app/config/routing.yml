@@ -1,3 +1,0 @@
-app:
-    resource: '@MusicAppBundle/Controller/'
-    type: annotation
