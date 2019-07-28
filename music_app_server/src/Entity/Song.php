@@ -58,6 +58,7 @@ class Song
     {
         $this->tags = new ArrayCollection();
         $this->dateAdded = new \DateTime('now');
+        $this->playedCount = 0;
     }
 
     public function getGenre(): ?Genre
