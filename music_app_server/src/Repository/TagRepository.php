@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -36,15 +38,48 @@ class TagRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Tag
+
+    public function findOneByName($value): ?Tag
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
+            ->andWhere('t.name = :val')
             ->setParameter('val', $value)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getOneOrNullResult();
     }
-    */
+
+    public function save(Tag $tag)
+    {
+        try {
+            $this->_em->persist($tag);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+    }
+
+    public function update(Tag $tag)
+    {
+        try {
+            $this->_em->merge($tag);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
+    public function remove(Tag $tag)
+    {
+        try {
+            $this->_em->remove($tag);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
 }

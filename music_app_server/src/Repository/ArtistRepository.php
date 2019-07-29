@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Artist;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -36,15 +37,51 @@ class ArtistRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Artist
+
+    public function findOneByName($value): ?Artist
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
+            ->andWhere('a.name = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+
+    public function save(Artist $artist)
+    {
+        try {
+            $this->_em->persist($artist);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
+    public function update(Artist $artist)
+    {
+        try {
+            $this->_em->merge($artist);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
+    public function remove(Artist $artist)
+    {
+        try {
+            $this->_em->remove($artist);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
 }

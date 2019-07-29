@@ -13,3 +13,7 @@ genres:
   type: rest
   resource: App\Controller\GenreController
   prefix: api
+artists:
+  type: rest
+  resource: App\Controller\ArtistController
+  prefix: api

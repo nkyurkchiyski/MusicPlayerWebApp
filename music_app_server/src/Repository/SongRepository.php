@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Song;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -47,4 +48,40 @@ class SongRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function save(Song $song)
+    {
+        try {
+            $this->_em->persist($song);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
+    public function update(Song $song)
+    {
+        try {
+            $this->_em->merge($song);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
+
+    public function remove(Song $song)
+    {
+        try {
+            $this->_em->remove($song);
+            $this->_em->flush();
+            return true;
+        }catch (ORMException $e) {
+            return false;
+        }
+
+    }
 }

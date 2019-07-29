@@ -30,13 +30,14 @@ class Artist
     private $imageUrl;
 
     /**
-     * @ORM\OneToMany(targetEntity="Album", mappedBy="artist")
+     * @ORM\OneToMany(targetEntity="Song", mappedBy="artist")
      */
-    private $albums;
+    private $songs;
+
 
     public function __construct()
     {
-        $this->albums = new ArrayCollection();
+        $this->songs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -68,8 +69,8 @@ class Artist
         return $this;
     }
 
-    public function getAlbums(): Collection
+    public function getSongs(): Collection
     {
-        return $this->albums;
+        return $this->songs;
     }
 }

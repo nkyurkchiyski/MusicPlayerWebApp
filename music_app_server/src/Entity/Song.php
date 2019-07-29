@@ -35,6 +35,16 @@ class Song
     private $dateAdded;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $coverArtUrl;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $albumName;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Genre", inversedBy="songs")
      * @ORM\JoinColumn(name="genre_id", referencedColumnName="id")
      */
@@ -49,10 +59,10 @@ class Song
     private $tags;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Album", inversedBy="songs")
-     * @ORM\JoinColumn(name="album_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Artist", inversedBy="songs")
+     * @ORM\JoinColumn(name="artist_id", referencedColumnName="id")
      */
-    private $album;
+    private $artist;
 
     public function __construct()
     {
@@ -107,14 +117,14 @@ class Song
         return $this->tags;
     }
 
-    public function getAlbum():?Album
+    public function getArtist():?Artist
     {
-        return $this->album;
+        return $this->artist;
     }
 
-    public function setAlbum(Album $album): self
+    public function setArtist(Artist $artist): self
     {
-        $this->album = $album;
+        $this->artist = $artist;
 
         return $this;
     }
@@ -128,6 +138,36 @@ class Song
     {
         $this->dateAdded = $dateAdded;
 
+        return $this;
+    }
+
+    public function setTags($tags): self
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function getCoverArtUrl():?string
+    {
+        return $this->coverArtUrl;
+    }
+
+    public function setCoverArtUrl($coverArtUrl): self
+    {
+        $this->coverArtUrl = $coverArtUrl;
+
+        return $this;
+    }
+
+    public function getAlbumName():?string
+    {
+        return $this->albumName;
+    }
+
+    public function setAlbumName($albumName): self
+    {
+        $this->albumName = $albumName;
         return $this;
     }
 }
