@@ -23,7 +23,7 @@ class GenreService implements GenreServiceInterface
         return $this->genreRepository->findAll();
     }
 
-    public function getOne(int $id): ?Genre
+    public function getOneById(int $id): ?Genre
     {
         return $this->genreRepository->findOneBy(["id" => $id]);
     }

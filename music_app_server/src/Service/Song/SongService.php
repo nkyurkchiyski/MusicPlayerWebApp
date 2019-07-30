@@ -3,14 +3,11 @@
 
 namespace App\Service\Song;
 
-
-use App\Entity\Artist;
 use App\Entity\Song;
-use App\Entity\Tag;
 use App\Repository\GenreRepository;
 use App\Repository\SongRepository;
-use App\Repository\TagRepository;
 use App\Service\Artist\ArtistServiceInterface;
+use App\Service\User\UserServiceInterface;
 
 class SongService implements SongServiceInterface
 {
@@ -23,27 +20,27 @@ class SongService implements SongServiceInterface
      */
     private $genreRepository;
     /**
-     * @var TagRepository
-     */
-    private $tagRepository;
-    /**
      * @var ArtistServiceInterface
      */
     private $artistService;
+    /**
+     * @var UserServiceInterface
+     */
+    private $userService;
 
     public function __construct(
         SongRepository $songRepository,
         GenreRepository $genreRepository,
-        TagRepository $tagRepository,
-        ArtistServiceInterface $artistService)
+        ArtistServiceInterface $artistService,
+        UserServiceInterface $userService)
     {
         $this->songRepository = $songRepository;
         $this->genreRepository = $genreRepository;
-        $this->tagRepository = $tagRepository;
         $this->artistService = $artistService;
+        $this->userService = $userService;
     }
 
-    public function getOne(int $id): Song
+    public function getOneById(int $id): Song
     {
         return $this->songRepository->find($id);
     }
@@ -53,81 +50,15 @@ class SongService implements SongServiceInterface
         return $this->songRepository->findAll();
     }
 
-    private function getOrCreateTags($params)
+    public function create(Song $song): bool
     {
-        $tagNames = explode(', ',$params);
-        $tags = [];
-        foreach ($tagNames as $name){
-            $tag = $this->tagRepository->findOneByName($name);
-            if (null === $tag){
-                $tag = new Tag();
-                $tag->setName($name);
-                $this->tagRepository->save($tag);
-            }
-            $tags[] = $tag;
-        }
-        return $tags;
-    }
-
-    /**
-     * @param string $artistName
-     * @return Artist
-     * @throws \Exception
-     */
-    private function getOrCreateArtist(string $artistName)
-    {
-        if (null === $artistName){
-            throw new \Exception("invalid data: name");
-        }
-        $artist = $this->artistService->getOneByName($artistName);
-        if (null === $artist){
-            $artist = new Artist();
-            $artist->setName($artistName);
-            $this->artistService->create($artist);
-        }
-        return $artist;
-    }
-
-    /**
-     * @param Song $song
-     * @param string $artistName
-     * @param int $genreId
-     * @param string $tagNames
-     * @return bool
-     * @throws \Exception
-     */
-    public function create(Song $song, string $artistName, int $genreId, string $tagNames): bool
-    {
-        $artist = $this->getOrCreateArtist($artistName);
-        $genre = $this->genreRepository->find($genreId);
-        $tags = $this->getOrCreateTags($tagNames);
-
-        $song->setArtist($artist);
-        $song->setGenre($genre);
-        $song->setTags($tags);
-
+        $song = $this->mapSong($song);
         return $this->songRepository->save($song);
-
     }
 
-    /**
-     * @param Song $song
-     * @param string $artistName
-     * @param int $genreId
-     * @param string $tagNames
-     * @return bool
-     * @throws \Exception
-     */
-    public function edit(Song $song, string $artistName, int $genreId, string $tagNames): bool
+    public function edit(Song $song): bool
     {
-        $artist = $this->getOrCreateArtist($artistName);
-        $genre = $this->genreRepository->find($genreId);
-        $tags = $this->getOrCreateTags($tagNames);
-
-        $song->setArtist($artist);
-        $song->setGenre($genre);
-        $song->setTags($tags);
-
+        $song = $this->mapSong($song);
         return $this->songRepository->update($song);
     }
 
@@ -135,4 +66,18 @@ class SongService implements SongServiceInterface
     {
         return $this->songRepository->remove($song);
     }
+
+    public function mapSong(Song $song): Song
+    {
+        $artist = $this->artistService->getOrCreateByName($song->getArtist()->getName());
+        $genre = $this->genreRepository->findOneByName($song->getGenre()->getName());
+
+        $song->setArtist($artist);
+        $song->setGenre($genre);
+        $song->setUser($this->userService->currentUser());
+
+        return $song;
+    }
+
 }
+

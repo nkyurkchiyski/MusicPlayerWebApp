@@ -31,7 +31,7 @@ class ArtistService implements ArtistServiceInterface
         return $this->artistRepository->findAll();
     }
 
-    public function getOne(int $id)
+    public function getOneById(int $id)
     {
         return $this->artistRepository->find($id);
     }
@@ -49,5 +49,26 @@ class ArtistService implements ArtistServiceInterface
     public function delete(Artist $artist):bool
     {
         return $this->artistRepository->remove($artist);
+    }
+
+    /**
+     * @param string $artistName
+     * @return Artist
+     * @throws \Exception
+     */
+    public function getOrCreateByName(string $artistName)
+    {
+        if (!isset($artistName) || ctype_space($artistName)){
+            throw new \Exception("invalid data: name");
+        }
+
+        $artist = $this->getOneByName($artistName);
+
+        if (null === $artist){
+            $artist = new Artist();
+            $artist->setName($artistName);
+            $this->create($artist);
+        }
+        return $artist;
     }
 }

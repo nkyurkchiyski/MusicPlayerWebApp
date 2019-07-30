@@ -2,72 +2,71 @@
 
 namespace App\Controller;
 
-use App\Entity\Song;
-use App\Form\SongType;
-use App\Service\Song\SongServiceInterface;
+use App\Entity\Playlist;
+use App\Form\PlaylistType;
+use App\Service\Playlist\PlaylistServiceInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-class SongController extends AbstractFOSRestController
+class PlaylistController extends AbstractFOSRestController
 {
+
     /**
-     * @var SongServiceInterface
+     * @var PlaylistServiceInterface
      */
-    private $songService;
+    private $playlistService;
 
-    public function __construct(SongServiceInterface $songService)
+    public function __construct(PlaylistServiceInterface $playlistService)
     {
-        $this->songService = $songService;
+        $this->playlistService = $playlistService;
     }
 
-    public function getSongsAction()
+    public function getPlaylistAction(int $id)
     {
-        $data = $this->songService->getAll();
+        $data = $this->playlistService->getOneById($id);
 
-        return $this->view($data, Response::HTTP_OK);
+        return $this->view($data,Response::HTTP_OK);
+        
     }
 
-    public function getSongAction(int $id)
+    public function getPlaylistsAction()
     {
-        $data = $this->songService->getOneById($id);
+        $data = $this->playlistService->getAll();
 
-        if ($data === null) {
-            return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        return $this->view($data, Response::HTTP_OK);
+        return $this->view($data,Response::HTTP_OK);
     }
 
-    public function postSongsAction(Request $request)
+    public function postPlaylistAction(Request $request)
     {
-        $song = new Song();
+        $playlist = new Playlist();
         try {
-            $song = $this->processForm(
-                $song,
+            $playlist = $this->processForm(
+                $playlist,
                 $request->request->all(),
                 'POST');
 
-            $this->songService->create($song);
+            $this->playlistService->create($playlist);
             return $this->view(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-
     }
 
-    public function patchSongsAction(Request $request, int $id)
+    public function patchPlaylistAction(Request $request, int $id)
     {
         try {
-            $song = $this->songService->getOneById($id);
-            if (null === $song) {
+            $playlist = $this->playlistService->getOneById($id);
+            if (null === $playlist) {
                 $statusCode = Response::HTTP_NOT_FOUND;
             } else {
-                $song = $this->processForm(
-                    $song,
+                $playlist = $this->processForm(
+                    $playlist,
                     $request->request->all(),
                     'PATCH');
-                $this->songService->edit($song);
+                $this->playlistService->edit($playlist);
                 $statusCode = Response::HTTP_NO_CONTENT;
             }
             return $this->view(null, $statusCode);
@@ -76,14 +75,14 @@ class SongController extends AbstractFOSRestController
         }
     }
 
-    public function deleteSongsAction(int $id)
+    public function deletePlaylistAction(int $id)
     {
         try {
-            $song = $this->songService->getOneById($id);
-            if (null === $song) {
+            $playlist = $this->playlistService->getOneById($id);
+            if (null === $playlist) {
                 $statusCode = Response::HTTP_NOT_FOUND;
             } else {
-                $this->songService->delete($song);
+                $this->playlistService->delete($playlist);
                 $statusCode = Response::HTTP_NO_CONTENT;
             }
             return  $this->view(null, $statusCode);
@@ -93,27 +92,25 @@ class SongController extends AbstractFOSRestController
     }
 
     /**
-     * @param $song
+     * @param $playlist
      * @param $params
      * @param string $method
      * @return mixed
      * @throws \Exception
      */
-    private function processForm($song, $params, $method = 'PUT')
+    private function processForm($playlist, $params, $method = 'PUT')
     {
         $form = $this->createForm(
-            SongType::class,
-            $song,
+            PlaylistType::class,
+            $playlist,
             ['method' => $method]);
 
         $clearMissing = $method != 'PATCH';
 
         $form->submit($params, $clearMissing);
         if ($form->isSubmitted()) {
-            return $song;
+            return $playlist;
         }
         throw new \Exception('submitted data is invalid');
     }
-
-
 }

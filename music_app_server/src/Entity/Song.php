@@ -40,9 +40,15 @@ class Song
     private $coverArtUrl;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
-    private $albumName;
+    private $songUrl;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="songs")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Genre", inversedBy="songs")
@@ -51,12 +57,12 @@ class Song
     private $genre;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="songs")
-     * @ORM\JoinTable(name="songs_tags",
+     * @ORM\ManyToMany(targetEntity="Playlist", inversedBy="songs")
+     * @ORM\JoinTable(name="songs_playlists",
      *      joinColumns={@ORM\JoinColumn(name="song_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="id")})
+     *      inverseJoinColumns={@ORM\JoinColumn(name="playlist_id", referencedColumnName="id")})
      */
-    private $tags;
+    private $playlists;
 
     /**
      * @ORM\ManyToOne(targetEntity="Artist", inversedBy="songs")
@@ -66,9 +72,9 @@ class Song
 
     public function __construct()
     {
-        $this->tags = new ArrayCollection();
         $this->dateAdded = new \DateTime('now');
         $this->playedCount = 0;
+        $this->playlists = new ArrayCollection();
     }
 
     public function getGenre(): ?Genre
@@ -112,12 +118,7 @@ class Song
         return $this;
     }
 
-    public function getTags(): Collection
-    {
-        return $this->tags;
-    }
-
-    public function getArtist():?Artist
+    public function getArtist(): ?Artist
     {
         return $this->artist;
     }
@@ -141,14 +142,7 @@ class Song
         return $this;
     }
 
-    public function setTags($tags): self
-    {
-        $this->tags = $tags;
-
-        return $this;
-    }
-
-    public function getCoverArtUrl():?string
+    public function getCoverArtUrl(): ?string
     {
         return $this->coverArtUrl;
     }
@@ -160,14 +154,33 @@ class Song
         return $this;
     }
 
-    public function getAlbumName():?string
+    public function getPlaylists(): ArrayCollection
     {
-        return $this->albumName;
+        return $this->playlists;
     }
 
-    public function setAlbumName($albumName): self
+    public function getSongUrl():?string
     {
-        $this->albumName = $albumName;
+        return $this->songUrl;
+    }
+
+    public function setSongUrl(string $songUrl): self
+    {
+        $this->songUrl = $songUrl;
+
         return $this;
     }
+
+    public function getUser():?User
+    {
+        return $this->user;
+    }
+
+    public function setUser($user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
 }

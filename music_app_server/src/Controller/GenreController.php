@@ -28,7 +28,7 @@ class GenreController extends AbstractFOSRestController
 
     public function getGenreAction(int $id)
     {
-        $data = $this->genreService->getOne($id);
+        $data = $this->genreService->getOneById($id);
 
         if ($data === null){
             return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);

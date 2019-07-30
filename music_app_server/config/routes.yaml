@@ -5,6 +5,9 @@
 #    path: /
 #    defaults: { _controller: 'App\Controller\DefaultController::index' }
 
+api_login_check:
+  path: /api/login_check
+
 songs:
   type: rest
   resource: App\Controller\SongController
@@ -16,4 +19,8 @@ genres:
 artists:
   type: rest
   resource: App\Controller\ArtistController
+  prefix: api
+playlists:
+  type: rest
+  resource: App\Controller\PlaylistController
   prefix: api

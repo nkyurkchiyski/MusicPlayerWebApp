@@ -6,10 +6,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="tags")
- * @ORM\Entity(repositoryClass="App\Repository\TagRepository")
+ * @ORM\Table(name="roles")
+ * @ORM\Entity(repositoryClass="App\Repository\RoleRepository")
  */
-class Tag
+class Role
 {
     /**
      * @ORM\Id()
@@ -24,13 +24,15 @@ class Tag
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Song", mappedBy="tags")
+     * @var ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="User",mappedBy="roles")
      */
-    private $songs;
+    private $users;
 
     public function __construct()
     {
-        $this->songs = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -50,8 +52,8 @@ class Tag
         return $this;
     }
 
-    public function getSongs()
+    public function getRole()
     {
-        return $this->songs;
+        return $this->getName();
     }
 }

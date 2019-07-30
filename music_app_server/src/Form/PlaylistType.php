@@ -2,31 +2,24 @@
 
 namespace App\Form;
 
-use App\Entity\Song;
-use Doctrine\DBAL\Types\TextType;
+use App\Entity\Playlist;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SongType extends AbstractType
+class PlaylistType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title')
-            ->add('coverArtUrl')
-            ->add('songUrl')
-            ->add('playedCount')
-            ->add('artist', ArtistType::class)
-            ->add('genre', GenreType::class)
+            ->add('name')
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Song::class,
+            'data_class' => Playlist::class,
         ]);
     }
 }

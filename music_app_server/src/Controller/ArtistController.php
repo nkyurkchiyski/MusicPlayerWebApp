@@ -32,7 +32,7 @@ class ArtistController extends AbstractFOSRestController
 
     public function getArtistAction(int $id)
     {
-        $data = $this->artistService->getOne($id);
+        $data = $this->artistService->getOneById($id);
 
         if ($data === null) {
             return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);
@@ -43,7 +43,7 @@ class ArtistController extends AbstractFOSRestController
 
     public function patchArtistsAction(Request $request, int $id)
     {
-        $artist = $this->artistService->getOne($id);
+        $artist = $this->artistService->getOneById($id);
         try {
             if ($artist){
                 $artist = $this->processForm(

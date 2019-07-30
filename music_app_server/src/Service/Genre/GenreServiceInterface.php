@@ -8,5 +8,5 @@ use Doctrine\Common\Collections\Collection;
 interface GenreServiceInterface
 {
     public function getAll();
-    public function getOne(int $id):?Genre;
+    public function getOneById(int $id):?Genre;
 }
