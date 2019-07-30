@@ -29,10 +29,12 @@ class Playlist
      */
     private $user;
 
+
     /**
-     * @var ArrayCollection
-     *
-     * @ORM\ManyToMany(targetEntity="Song",mappedBy="playlists")
+     * @ORM\ManyToMany(targetEntity="Song", inversedBy="playlists",orphanRemoval=false,cascade={"persist"})
+     * @ORM\JoinTable(name="playlists_songs",
+     *      joinColumns={@ORM\JoinColumn(name="playlist_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="song_id", referencedColumnName="id")})
      */
     private $songs;
 

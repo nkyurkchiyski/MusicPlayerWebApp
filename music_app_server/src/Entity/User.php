@@ -165,9 +165,18 @@ class User implements UserInterface
      * @param Song $song
      * @return bool
      */
-    public function isCreator(Song $song)
+    public function isSongCreator(Song $song)
     {
         return $song->getUser()->getId() == $this->getId();
+    }
+
+    /**
+     * @param Playlist $playlist
+     * @return bool
+     */
+    public function isPlaylistCreator(Playlist $playlist)
+    {
+        return $playlist->getUser()->getId() == $this->getId();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Playlist;
 use App\Form\PlaylistType;
 use App\Service\Playlist\PlaylistServiceInterface;
+use App\Service\Song\SongServiceInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,10 +19,17 @@ class PlaylistController extends AbstractFOSRestController
      * @var PlaylistServiceInterface
      */
     private $playlistService;
+    /**
+     * @var SongServiceInterface
+     */
+    private $songService;
 
-    public function __construct(PlaylistServiceInterface $playlistService)
+    public function __construct(
+        PlaylistServiceInterface $playlistService,
+        SongServiceInterface $songService)
     {
         $this->playlistService = $playlistService;
+        $this->songService = $songService;
     }
 
     public function getPlaylistAction(int $id)
@@ -88,6 +96,44 @@ class PlaylistController extends AbstractFOSRestController
             return  $this->view(null, $statusCode);
         } catch (\Exception $e) {
             return $this->view(['error' => $e->getMessage()],Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function postPlaylistsSongsAction(int $playlistId,int $songId)
+    {
+        try {
+            $playlist = $this->playlistService->getOneById($playlistId);
+            $song = $this->songService->getOneById($songId);
+
+            if (null === $playlist ||
+                null==$song) {
+                $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                $this->playlistService->addSongToPlaylist($song,$playlist);
+                $statusCode = Response::HTTP_NO_CONTENT;
+            }
+            return $this->view(null, $statusCode);
+        } catch (\Exception $e) {
+            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function deletePlaylistsSongsAction(int $playlistId,int $songId)
+    {
+        try {
+            $playlist = $this->playlistService->getOneById($playlistId);
+            $song = $this->songService->getOneById($songId);
+
+            if (null === $playlist ||
+                null==$song) {
+                $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                $this->playlistService->removeSongFromPlaylist($song,$playlist);
+                $statusCode = Response::HTTP_NO_CONTENT;
+            }
+            return $this->view(null, $statusCode);
+        } catch (\Exception $e) {
+            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 

@@ -57,10 +57,9 @@ class Song
     private $genre;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Playlist", inversedBy="songs")
-     * @ORM\JoinTable(name="songs_playlists",
-     *      joinColumns={@ORM\JoinColumn(name="song_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="playlist_id", referencedColumnName="id")})
+     * @var ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="Playlist",mappedBy="songs")
      */
     private $playlists;
 

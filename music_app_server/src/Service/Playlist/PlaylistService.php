@@ -53,7 +53,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function edit(Playlist $playlist): bool
     {
         $playlist->setUser($this->userService->currentUser());
-        return $this->playlistRepository->save($playlist);
+        return $this->playlistRepository->update($playlist);
     }
 
     public function delete(Playlist $playlist): bool
@@ -63,11 +63,13 @@ class PlaylistService implements PlaylistServiceInterface
 
     public function addSongToPlaylist(Song $song, Playlist $playlist): bool
     {
-        // TODO: Implement addSongToPlaylist() method.
+        $playlist=$playlist->addSong($song);
+        return $this->playlistRepository->save($playlist);
     }
 
     public function removeSongFromPlaylist(Song $song, Playlist $playlist): bool
     {
-        // TODO: Implement removeSongFromPlaylist() method.
+        $playlist->removeSong($song);
+        return $this->playlistRepository->save($playlist);
     }
 }
