@@ -18,10 +18,15 @@ class RoleService implements RoleServiceInterface
         $this->roleRepository = $roleRepository;
     }
 
-    public function findOneByName(string $name)
+    public function getOneByName(string $name)
     {
         return $this->roleRepository->findOneBy(
             ['name' => $name]
         );
+    }
+
+    public function getAll()
+    {
+        return $this->roleRepository->findAll();
     }
 }

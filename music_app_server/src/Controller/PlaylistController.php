@@ -6,11 +6,11 @@ use App\Entity\Playlist;
 use App\Form\PlaylistType;
 use App\Service\Playlist\PlaylistServiceInterface;
 use App\Service\Song\SongServiceInterface;
+use App\Utils\ErrorMessage;
+use App\Utils\HttpError;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class PlaylistController extends AbstractFOSRestController
 {
@@ -35,8 +35,17 @@ class PlaylistController extends AbstractFOSRestController
     public function getPlaylistAction(int $id)
     {
         $data = $this->playlistService->getOneById($id);
+        $statusCode = Response::HTTP_OK;
 
-        return $this->view($data,Response::HTTP_OK);
+        if ($data === null) {
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->view(
+                new HttpError($statusCode,ErrorMessage::RESOURCE_NOT_FOUND),
+                $statusCode);
+        }
+
+        return $this->view($data, $statusCode);
         
     }
 
@@ -59,7 +68,10 @@ class PlaylistController extends AbstractFOSRestController
             $this->playlistService->create($playlist);
             return $this->view(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -79,7 +91,10 @@ class PlaylistController extends AbstractFOSRestController
             }
             return $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -95,7 +110,10 @@ class PlaylistController extends AbstractFOSRestController
             }
             return  $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()],Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -114,7 +132,10 @@ class PlaylistController extends AbstractFOSRestController
             }
             return $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -133,7 +154,10 @@ class PlaylistController extends AbstractFOSRestController
             }
             return $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -157,6 +181,6 @@ class PlaylistController extends AbstractFOSRestController
         if ($form->isSubmitted()) {
             return $playlist;
         }
-        throw new \Exception('submitted data is invalid');
+        throw new \Exception(ErrorMessage::INVALID_DATA);
     }
 }

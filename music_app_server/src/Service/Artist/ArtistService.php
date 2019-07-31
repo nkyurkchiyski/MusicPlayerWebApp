@@ -21,7 +21,7 @@ class ArtistService implements ArtistServiceInterface
         $this->artistRepository = $artistRepository;
     }
 
-    public function getOneByName(string $artistName)
+    public function getOneByName(string $artistName): ?Artist
     {
         return $this->artistRepository->findOneByName($artistName);
     }
@@ -31,7 +31,7 @@ class ArtistService implements ArtistServiceInterface
         return $this->artistRepository->findAll();
     }
 
-    public function getOneById(int $id)
+    public function getOneById(int $id): ?Artist
     {
         return $this->artistRepository->find($id);
     }
@@ -56,7 +56,7 @@ class ArtistService implements ArtistServiceInterface
      * @return Artist
      * @throws \Exception
      */
-    public function getOrCreateByName(string $artistName)
+    public function getOrCreateByName(string $artistName): ?Artist
     {
         if (!isset($artistName) || ctype_space($artistName)){
             throw new \Exception("invalid data: name");

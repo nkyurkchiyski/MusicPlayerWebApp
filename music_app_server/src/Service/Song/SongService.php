@@ -40,7 +40,7 @@ class SongService implements SongServiceInterface
         $this->userService = $userService;
     }
 
-    public function getOneById(int $id): Song
+    public function getOneById(int $id): ?Song
     {
         return $this->songRepository->find($id);
     }

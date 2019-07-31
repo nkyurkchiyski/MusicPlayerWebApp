@@ -9,7 +9,7 @@ use App\Entity\Song;
 
 interface PlaylistServiceInterface
 {
-    public function getOneById(int $id);
+    public function getOneById(int $id): ?Playlist;
     public function getAll();
     public function getAllByUserId(int $userId);
     public function create(Playlist $playlist): bool;

@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Song;
 use App\Form\SongType;
 use App\Service\Song\SongServiceInterface;
+use App\Utils\ErrorMessage;
+use App\Utils\HttpError;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,12 +33,15 @@ class SongController extends AbstractFOSRestController
     public function getSongAction(int $id)
     {
         $data = $this->songService->getOneById($id);
-
+        $statusCode = Response::HTTP_OK;
         if ($data === null) {
-            return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);
+            $statusCode = Response::HTTP_NOT_FOUND;
+            return $this->view(
+                new HttpError($statusCode,ErrorMessage::RESOURCE_NOT_FOUND),
+                $statusCode);
         }
 
-        return $this->view($data, Response::HTTP_OK);
+        return $this->view($data, $statusCode);
     }
 
     public function postSongsAction(Request $request)
@@ -51,7 +56,10 @@ class SongController extends AbstractFOSRestController
             $this->songService->create($song);
             return $this->view(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
 
     }
@@ -72,7 +80,10 @@ class SongController extends AbstractFOSRestController
             }
             return $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -88,7 +99,10 @@ class SongController extends AbstractFOSRestController
             }
             return  $this->view(null, $statusCode);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()],Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -112,7 +126,7 @@ class SongController extends AbstractFOSRestController
         if ($form->isSubmitted()) {
             return $song;
         }
-        throw new \Exception('submitted data is invalid');
+        throw new \Exception(ErrorMessage::INVALID_DATA);
     }
 
 

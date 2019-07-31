@@ -6,5 +6,6 @@ namespace App\Service\Role;
 
 interface RoleServiceInterface
 {
-    public function findOneByName(string $name);
+    public function getOneByName(string $name);
+    public function getAll();
 }

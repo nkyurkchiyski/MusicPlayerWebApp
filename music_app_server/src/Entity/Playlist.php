@@ -24,7 +24,7 @@ class Playlist
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="playlists")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="playlists", cascade={"persist"})
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;

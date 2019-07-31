@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Service\Genre\GenreServiceInterface;
+use App\Utils\ErrorMessage;
+use App\Utils\HttpError;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,7 +33,11 @@ class GenreController extends AbstractFOSRestController
         $data = $this->genreService->getOneById($id);
 
         if ($data === null){
-            return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->view(
+                new HttpError($statusCode,ErrorMessage::RESOURCE_NOT_FOUND),
+                $statusCode);
         }
 
         return $this->view($data, Response::HTTP_OK);

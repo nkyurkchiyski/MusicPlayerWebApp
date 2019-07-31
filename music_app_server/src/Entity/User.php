@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -25,14 +26,14 @@ class User implements UserInterface
     private $email;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string", length=255)
      */
-    private $isActive;
+    private $fullName;
 
     /**
      * @var ArrayCollection
      *
-     * @ORM\ManyToMany(targetEntity="Role")
+     * @ORM\ManyToMany(targetEntity="Role",)
      * @ORM\JoinTable(name="users_roles",
      *     joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")})
@@ -42,11 +43,12 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Serializer\Exclude
      */
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity="Playlist", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="Playlist", mappedBy="user",cascade={"persist"})
      */
     private $playlists;
 
@@ -60,7 +62,6 @@ class User implements UserInterface
         $this->playlists = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->songs = new ArrayCollection();
-        $this->isActive = true;
     }
 
     public function getId(): ?int
@@ -144,18 +145,6 @@ class User implements UserInterface
         return $this->playlists;
     }
 
-    public function getIsActive():bool
-    {
-        return $this->isActive;
-    }
-
-    public function setIsActive($isActive): self
-    {
-        $this->isActive = $isActive;
-
-        return $this;
-    }
-
     public function getSongs()
     {
         return $this->songs;
@@ -189,7 +178,39 @@ class User implements UserInterface
 
     public function addRole(Role $role)
     {
-        $this->roles[] = $role;
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
+        return $this;
+    }
+
+    public function addPlaylist(Playlist $playlist)
+    {
+        if (!$this->playlists->contains($playlist)) {
+            $this->playlists[] = $playlist;
+        }
+
+        return $this;
+    }
+
+    public function removePlaylist(Playlist $playlist)
+    {
+        if ($this->playlists->contains($playlist)) {
+            $this->playlists->removeElement($playlist);
+        }
+
+        return $this;
+    }
+
+    public function getFullName():string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(string $fullName): self
+    {
+        $this->fullName = $fullName;
+
         return $this;
     }
 }

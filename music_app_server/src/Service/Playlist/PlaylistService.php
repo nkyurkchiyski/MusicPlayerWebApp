@@ -34,7 +34,7 @@ class PlaylistService implements PlaylistServiceInterface
         return $this->playlistRepository->findAll();
     }
 
-    public function getOneById(int $id)
+    public function getOneById(int $id): ?Playlist
     {
         return $this->playlistRepository->find($id);
     }

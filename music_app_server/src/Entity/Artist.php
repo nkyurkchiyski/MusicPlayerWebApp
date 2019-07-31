@@ -30,7 +30,7 @@ class Artist
     private $imageUrl;
 
     /**
-     * @ORM\OneToMany(targetEntity="Song", mappedBy="artist")
+     * @ORM\OneToMany(targetEntity="Song", mappedBy="artist",orphanRemoval=false)
      */
     private $songs;
 

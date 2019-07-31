@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Artist;
 use App\Form\ArtistType;
 use App\Service\Artist\ArtistServiceInterface;
+use App\Utils\ErrorMessage;
+use App\Utils\HttpError;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,20 +27,25 @@ class ArtistController extends AbstractFOSRestController
     public function getArtistsAction()
     {
         $data = $this->artistService->getAll();
-
-        return $this->view($data, Response::HTTP_OK);
+        $statusCode = Response::HTTP_OK;
+        return $this->view($data, $statusCode);
 
     }
 
     public function getArtistAction(int $id)
     {
         $data = $this->artistService->getOneById($id);
+        $statusCode = Response::HTTP_OK;
 
         if ($data === null) {
-            return $this->view(['error' => 'resource not found'], Response::HTTP_NOT_FOUND);
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->view(
+                new HttpError($statusCode,ErrorMessage::RESOURCE_NOT_FOUND),
+                $statusCode);
         }
 
-        return $this->view($data, Response::HTTP_OK);
+        return $this->view($data, $statusCode);
     }
 
     public function patchArtistsAction(Request $request, int $id)
@@ -54,7 +61,10 @@ class ArtistController extends AbstractFOSRestController
             }
             return $this->view(null, Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -70,7 +80,10 @@ class ArtistController extends AbstractFOSRestController
             $this->artistService->create($artist);
             return $this->view(null, Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            return $this->view(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return $this->view(
+                new HttpError($statusCode, $e->getMessage()),
+                $statusCode);
         }
     }
 
@@ -94,6 +107,6 @@ class ArtistController extends AbstractFOSRestController
         if ($form->isSubmitted()) {
             return $artist;
         }
-        throw new \Exception('submitted data is invalid');
+        throw new \Exception(ErrorMessage::INVALID_DATA);
     }
 }
