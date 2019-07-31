@@ -8,6 +8,7 @@ use App\Entity\Playlist;
 use App\Entity\Song;
 use App\Repository\PlaylistRepository;
 use App\Service\User\UserServiceInterface;
+use App\Utils\ErrorMessage;
 
 class PlaylistService implements PlaylistServiceInterface
 {
@@ -50,26 +51,65 @@ class PlaylistService implements PlaylistServiceInterface
         return $this->playlistRepository->save($playlist);
     }
 
+    /**
+     * @param Playlist $playlist
+     * @return bool
+     * @throws \Exception
+     */
     public function edit(Playlist $playlist): bool
     {
+        $this->checkCredentials($playlist);
         $playlist->setUser($this->userService->currentUser());
         return $this->playlistRepository->update($playlist);
     }
 
+    /**
+     * @param Playlist $playlist
+     * @return bool
+     * @throws \Exception
+     */
     public function delete(Playlist $playlist): bool
     {
+        $this->checkCredentials($playlist);
         return $this->playlistRepository->remove($playlist);
     }
 
+    /**
+     * @param Song $song
+     * @param Playlist $playlist
+     * @return bool
+     * @throws \Exception
+     */
     public function addSongToPlaylist(Song $song, Playlist $playlist): bool
     {
-        $playlist=$playlist->addSong($song);
+        $this->checkCredentials($playlist);
+        $playlist->addSong($song);
         return $this->playlistRepository->save($playlist);
     }
 
+    /**
+     * @param Song $song
+     * @param Playlist $playlist
+     * @return bool
+     * @throws \Exception
+     */
     public function removeSongFromPlaylist(Song $song, Playlist $playlist): bool
     {
+        $this->checkCredentials($playlist);
         $playlist->removeSong($song);
         return $this->playlistRepository->save($playlist);
+    }
+
+    /**
+     * @param Playlist $playlist
+     * @throws \Exception
+     */
+    private function checkCredentials(Playlist $playlist): void
+    {
+        $currentUser = $this->userService->currentUser();
+        if (!$currentUser->isAdmin() &&
+            !$currentUser->isPlaylistCreator($playlist)) {
+            throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
+        }
     }
 }

@@ -6,6 +6,8 @@ namespace App\Service\Artist;
 
 use App\Entity\Artist;
 use App\Repository\ArtistRepository;
+use App\Service\User\UserServiceInterface;
+use App\Utils\ErrorMessage;
 
 class ArtistService implements ArtistServiceInterface
 {
@@ -14,11 +16,17 @@ class ArtistService implements ArtistServiceInterface
      * @var ArtistRepository
      */
     private $artistRepository;
+    /**
+     * @var UserServiceInterface
+     */
+    private $userService;
 
     public function __construct(
-        ArtistRepository $artistRepository)
+        ArtistRepository $artistRepository,
+        UserServiceInterface $userService)
     {
         $this->artistRepository = $artistRepository;
+        $this->userService = $userService;
     }
 
     public function getOneByName(string $artistName): ?Artist
@@ -43,6 +51,7 @@ class ArtistService implements ArtistServiceInterface
 
     public function edit(Artist $artist): bool
     {
+        $this->checkCredentials();
         return $this->artistRepository->update($artist);
     }
 
@@ -59,7 +68,7 @@ class ArtistService implements ArtistServiceInterface
     public function getOrCreateByName(string $artistName): ?Artist
     {
         if (!isset($artistName) || ctype_space($artistName)){
-            throw new \Exception("invalid data: name");
+            throw new \Exception(ErrorMessage::INVALID_ARTIST_NAME);
         }
 
         $artist = $this->getOneByName($artistName);
@@ -70,5 +79,16 @@ class ArtistService implements ArtistServiceInterface
             $this->create($artist);
         }
         return $artist;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function checkCredentials(): void
+    {
+        $currentUser = $this->userService->currentUser();
+        if (!$currentUser->isAdmin()) {
+            throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
+        }
     }
 }

@@ -9,6 +9,8 @@ use App\Repository\PlaylistRepository;
 use App\Repository\UserRepository;
 use App\Service\Encryption\EncryptionServiceInterface;
 use App\Service\Role\RoleServiceInterface;
+use App\Utils\ErrorMessage;
+use App\Utils\GlobalConstant;
 use Symfony\Component\Security\Core\Security;
 
 class UserService implements UserServiceInterface
@@ -47,13 +49,13 @@ class UserService implements UserServiceInterface
     {
         $this->mapUser($user);
 
-        $userRole = $this->roleService->getOneByName(\GlobalConstant::ROLE_USER);
+        $userRole = $this->roleService->getOneByName(GlobalConstant::ROLE_USER);
 
         $user->addRole($userRole);
         $this->userRepository->save($user);
 
         $playlist = new Playlist();
-        $playlist->setName(\GlobalConstant::LIKED_PLAYLIST_NAME);
+        $playlist->setName(GlobalConstant::LIKED_PLAYLIST_NAME);
         $playlist->setUser($user);
 
         return $this->playlistRepository->save($playlist);
@@ -99,7 +101,7 @@ class UserService implements UserServiceInterface
     private function mapUser(User $user): ?User
     {
         if ($this->getOneByEmail($user->getEmail()) !== null) {
-            throw new \Exception(\ErrorMessage::EMAIL_TAKEN);
+            throw new \Exception(ErrorMessage::EMAIL_TAKEN);
         }
         $passwordHash =
             $this->encryptionService->hash($user->getPassword());

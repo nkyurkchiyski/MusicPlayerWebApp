@@ -4,7 +4,6 @@ namespace App\Service\Genre;
 
 use App\Entity\Genre;
 use App\Repository\GenreRepository;
-use Doctrine\Common\Collections\Collection;
 
 class GenreService implements GenreServiceInterface
 {

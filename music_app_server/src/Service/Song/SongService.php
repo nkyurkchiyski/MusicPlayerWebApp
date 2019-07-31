@@ -8,6 +8,7 @@ use App\Repository\GenreRepository;
 use App\Repository\SongRepository;
 use App\Service\Artist\ArtistServiceInterface;
 use App\Service\User\UserServiceInterface;
+use App\Utils\ErrorMessage;
 
 class SongService implements SongServiceInterface
 {
@@ -56,14 +57,26 @@ class SongService implements SongServiceInterface
         return $this->songRepository->save($song);
     }
 
+    /**
+     * @param Song $song
+     * @return bool
+     * @throws \Exception
+     */
     public function edit(Song $song): bool
     {
+        $this->checkCredentials($song);
         $song = $this->mapSong($song);
         return $this->songRepository->update($song);
     }
 
+    /**
+     * @param Song $song
+     * @return bool
+     * @throws \Exception
+     */
     public function delete(Song $song): bool
     {
+        $this->checkCredentials($song);
         return $this->songRepository->remove($song);
     }
 
@@ -77,6 +90,19 @@ class SongService implements SongServiceInterface
         $song->setUser($this->userService->currentUser());
 
         return $song;
+    }
+
+    /**
+     * @param Song $song
+     * @throws \Exception
+     */
+    private function checkCredentials(Song $song): void
+    {
+        $currentUser = $this->userService->currentUser();
+        if (!$currentUser->isAdmin() &&
+            !$currentUser->isSongCreator($song)) {
+            throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
+        }
     }
 
 }
