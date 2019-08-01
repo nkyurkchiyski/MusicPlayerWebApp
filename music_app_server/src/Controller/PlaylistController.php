@@ -60,6 +60,10 @@ class PlaylistController extends AbstractFOSRestController
     {
         $playlist = new Playlist();
         try {
+            $this->playlistService->isValidName(
+                null,
+                $request->request->get("name"));
+
             $playlist = $this->processForm(
                 $playlist,
                 $request->request->all(),
@@ -81,11 +85,18 @@ class PlaylistController extends AbstractFOSRestController
             $playlist = $this->playlistService->getOneById($id);
             if (null === $playlist) {
                 $statusCode = Response::HTTP_NOT_FOUND;
-            } else {
+            }else if($playlist->getName() === "Liked"){
+                throw new \Exception(ErrorMessage::PLAYLIST_IMMUTABLE);
+            }else {
+                $this->playlistService->isValidName(
+                    $playlist->getId(),
+                    $request->request->get("name"));
+
                 $playlist = $this->processForm(
                     $playlist,
                     $request->request->all(),
                     'PATCH');
+
                 $this->playlistService->edit($playlist);
                 $statusCode = Response::HTTP_NO_CONTENT;
             }
@@ -104,7 +115,9 @@ class PlaylistController extends AbstractFOSRestController
             $playlist = $this->playlistService->getOneById($id);
             if (null === $playlist) {
                 $statusCode = Response::HTTP_NOT_FOUND;
-            } else {
+            } else if($playlist->getName() === "Liked"){
+                throw new \Exception(ErrorMessage::PLAYLIST_IMMUTABLE);
+            }else {
                 $this->playlistService->delete($playlist);
                 $statusCode = Response::HTTP_NO_CONTENT;
             }
@@ -126,7 +139,7 @@ class PlaylistController extends AbstractFOSRestController
             if (null === $playlist ||
                 null==$song) {
                 $statusCode = Response::HTTP_NOT_FOUND;
-            } else {
+            } else{
                 $this->playlistService->addSongToPlaylist($song,$playlist);
                 $statusCode = Response::HTTP_NO_CONTENT;
             }

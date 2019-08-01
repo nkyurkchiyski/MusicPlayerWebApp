@@ -14,4 +14,5 @@ interface UserServiceInterface
     public function getOneById (int $id) : ?User;
     public function getOne (User $user) : ?User;
     public function currentUser () :  ?User;
+
 }

@@ -71,6 +71,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function delete(Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
+
         return $this->playlistRepository->remove($playlist);
     }
 
@@ -98,6 +99,24 @@ class PlaylistService implements PlaylistServiceInterface
         $this->checkCredentials($playlist);
         $playlist->removeSong($song);
         return $this->playlistRepository->save($playlist);
+    }
+
+    /**
+     * @param int $playlistId
+     * @param string $name
+     * @throws \Exception
+     */
+    public function isValidName(?int $playlistId, string $name)
+    {
+        $currentUser = $this->userService->currentUser();
+        $userPlaylists = $this->getAllByUserId($currentUser->getId());
+        /** @var Playlist $up */
+        foreach ($userPlaylists as $up){
+            if ($up->getId() !== $playlistId &&
+                $up->getName() === $name) {
+                throw new \Exception(ErrorMessage::PLAYLIST_ALREADY_EXISTS);
+            }
+        }
     }
 
     /**

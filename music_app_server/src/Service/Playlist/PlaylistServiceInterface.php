@@ -17,5 +17,6 @@ interface PlaylistServiceInterface
     public function delete(Playlist $playlist): bool;
     public function addSongToPlaylist(Song $song,Playlist $playlist):bool;
     public function removeSongFromPlaylist(Song $song,Playlist $playlist):bool;
+    public function isValidName(?int $playlistId, string $name);
 
 }
