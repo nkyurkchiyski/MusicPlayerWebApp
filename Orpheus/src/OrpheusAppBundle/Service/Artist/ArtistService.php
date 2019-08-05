@@ -36,7 +36,7 @@ class ArtistService implements ArtistServiceInterface
 
     public function getAll()
     {
-        return $this->artistRepository->findBy([],['name'=>'ASC']);
+        return $this->artistRepository->findBy([], ['name' => 'ASC']);
     }
 
     public function getOneById(int $id): ?Artist
@@ -49,13 +49,18 @@ class ArtistService implements ArtistServiceInterface
         return $this->artistRepository->save($artist);
     }
 
+    /**
+     * @param Artist $artist
+     * @return bool
+     * @throws \Exception
+     */
     public function edit(Artist $artist): bool
     {
         $this->checkCredentials();
         return $this->artistRepository->update($artist);
     }
 
-    public function delete(Artist $artist):bool
+    public function delete(Artist $artist): bool
     {
         return $this->artistRepository->remove($artist);
     }
@@ -67,13 +72,13 @@ class ArtistService implements ArtistServiceInterface
      */
     public function getOrCreateByName(string $artistName): ?Artist
     {
-        if (!isset($artistName) || ctype_space($artistName)){
+        if (!isset($artistName) || ctype_space($artistName)) {
             throw new \Exception(ErrorMessage::INVALID_ARTIST_NAME);
         }
 
         $artist = $this->getOneByName($artistName);
 
-        if (null === $artist){
+        if (null === $artist) {
             $artist = new Artist();
             $artist->setName($artistName);
             $this->create($artist);
@@ -90,5 +95,15 @@ class ArtistService implements ArtistServiceInterface
         if (!$currentUser->isAdmin()) {
             throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
         }
+    }
+
+    public function getAllSortedBySongsCount()
+    {
+        /** @var Artist[] $allArtists */
+        $allArtists = $this->artistRepository->findBy([], ['name' => 'ASC']);
+        usort($allArtists, function (Artist $a, Artist $b) {
+            return count($b->getSongs()) - count($a->getSongs());
+        });
+        return $allArtists;
     }
 }

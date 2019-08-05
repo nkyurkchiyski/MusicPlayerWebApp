@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'allGenres' %}
+
+{% block main %}
+    <div class="container">
+        <div class="text-center pb-4">
+            <h2>All Genres</h2>
+        </div>
+        <div class="row d-flex justify-content-around">
+            {% if genres is not empty %}
+                {% for genre in genres %}
+                    <a class="col-md-3 text-center text-dark" href="{{ path('genres_details', {'id': genre.id}) }}">
+                        <div>
+                            <img src="{{ asset('/images/note.jpg') }}" class="big-cover img-circle shadow" width="150"
+                                 height="150"
+                                 alt="genreImage">
+                            <div class="m-3">
+                            <h4 class="">{{ genre.name }}</h4>
+                            <h5 class="text-muted font-weight-light font-italic">{{ genre.songs|length }}
+                                songs</h5>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div>
+                    <h3 class="font-italic text-muteds">There are currently no genres :(</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

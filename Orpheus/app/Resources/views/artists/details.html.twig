@@ -1,26 +1,20 @@
 {% extends 'base.html.twig' %}
 
+{% block body_id 'detailsArtist' %}
+
 {% block main %}
     <div class="container">
-        <div class="jumbotron orpheus-color text-dark">
-            {% if app.user %}
-                <h1 class="display-4 font-weight-normal">Welcome back {{ app.user.fullName }}</h1>
-                <hr class="my-4">
-                <p class="lead">Check out our new releases.</p>
-            {% else %}
-                <h1 class="display-3 font-weight-normal">Welcome to Orpheus</h1>
-                <hr class="my-4">
-                <p class="lead">Share and listen to some of the freshest music.</p>
-                <p class="lead"><a class="text-shadow" href="{{ path("security_login") }}">Login</a>, if you don't have
-                    account <a class="text-shadow" href="{{ path("users_register") }}">sign up</a></p>
-            {% endif %}
+        <div class="text-center pb-4">
+            <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="200"
+                 height="200"
+                 alt="artistImage">
+            <h2 class="my-3 text-center">{{ artist.name }}</h2>
         </div>
-        <div class="">
-            <h2>Recently Added</h2>
-            <hr>
-            <div class="row d-flex justify-content-between">
-                {% for song in songs %}
-
+        <h3>Songs</h3>
+        <hr>
+        <div class="row d-flex justify-content-around">
+            {% if artist.songs is not empty %}
+                {% for song in artist.songs %}
                     <div class="card col-md-2 m-2 p-0 shadow-sm">
                         <a href="{{ path('songs_details', {'id': song.id}) }}">
                             <img src="{{ song.coverArtUrl }}" class="card-img-top big-cover" width="200" height="150"
@@ -37,9 +31,12 @@
                             </div>
                         </a>
                     </div>
-
                 {% endfor %}
-            </div>
+            {% else %}
+                <div>
+                    <h3 class="font-italic text-muteds">There are currently no songs by {{ artist.name }} :(</h3>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

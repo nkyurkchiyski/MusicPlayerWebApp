@@ -26,4 +26,14 @@ class GenreService implements GenreServiceInterface
     {
         return $this->genreRepository->findOneBy(["id" => $id]);
     }
+
+    public function getAllSortedBySongsCount()
+    {
+        /** @var Genre[] $allGenres */
+        $allGenres = $this->genreRepository->findBy([], ['name' => 'ASC']);
+        usort($allGenres, function (Genre $a, Genre $b) {
+            return count($b->getSongs()) - count($a->getSongs());
+        });
+        return $allGenres;
+    }
 }

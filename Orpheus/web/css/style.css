@@ -53,8 +53,9 @@ a:hover{
     text-decoration: none !important;
 }
 
-.orpheus-text-color{
+.orpheus-color{
     color: #ffec58;
+    background-color: #ffec58;
 }
 
 .text-shadow{

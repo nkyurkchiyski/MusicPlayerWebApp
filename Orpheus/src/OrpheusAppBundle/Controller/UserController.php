@@ -12,7 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends Controller
 {
-
     /**
      * @var UserServiceInterface
      */
@@ -30,6 +29,10 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
+        if ($this->userService->currentUser()){
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         $user = new User();
         $form = $this->createForm(UserType::class,$user);
         $form->handleRequest($request);
@@ -49,13 +52,9 @@ class UserController extends Controller
      *
      */
     public function profile(){
-        $userRepository = $this->getDoctrine()
-            ->getRepository(User::class);
-
-        $currentUser = $userRepository->find($this->getUser());
+        $currentUser = $this->userService->currentUser();
 
         return $this->render("users/profile.html.twig",
-            ['users'=>$currentUser]);
-
+            ['user'=>$currentUser]);
     }
 }

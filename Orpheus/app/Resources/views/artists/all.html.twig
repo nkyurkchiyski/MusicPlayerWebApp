@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'allArtists' %}
+
+{% block main %}
+    <div class="container">
+        <div class="text-center pb-4">
+            <h2>All Artists</h2>
+        </div>
+        <div class="row d-flex justify-content-around">
+            {% if artists is not empty %}
+                {% for artist in artists %}
+                    <a class="col-md-3 text-center text-dark" href="{{ path('artists_details', {'id': artist.id}) }}">
+                        <div>
+                            <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="150"
+                                 height="150"
+                                 alt="genreImage">
+                            <div class="m-3">
+                                <h4 class="">{{ artist.name }}</h4>
+                                <h5 class="text-muted font-weight-light font-italic">{{ artist.songs|length }}
+                                    songs</h5>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div>
+                    <h3 class="font-italic text-muteds">There are currently no artists :(</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
