@@ -1,0 +1,3 @@
+app:
+    resource: '@OrpheusAppBundle/Controller/'
+    type: annotation

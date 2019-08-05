@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'editSong' %}
+
+{% block main %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header form-title">Edit Song</div>
+                <div class="card-body">
+                    <div class="alert alert-dark" role="alert">
+                        WARNING: Beware that some embedded song url links won't work!
+                    </div>
+                    <form name="my-form" enctype="multipart/form-data" action="{{ path('songs_edit', {id: song.id}) }}" method="post">
+                        <div class="form-group row">
+                            <label for="title" class="col-md-4 col-form-label text-md-right">Title</label>
+                            <div class="col-md-6">
+                                <input type="text" id="title" placeholder="Title" class="form-control"
+                                       name="song[title]" required value="{{ song.title }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="artist" class="col-md-4 col-form-label text-md-right">Artist</label>
+                            <div class="col-md-6">
+                                <select name="song[artist]" class="form-control">
+                                    <option disabled>Select artist</option>
+                                    {% for artist in artists %}
+                                        {% if artist.name == song.artist.name %}
+                                            <option value="{{ artist.id}}" selected>{{ artist.name}}</option>
+                                        {% else %}
+                                        <option value="{{ artist.id}}">{{ artist.name}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="genre" class="col-md-4 col-form-label text-md-right">Genre</label>
+                            <div class="col-md-6">
+                                <select name="song[genre]" class="form-control">
+                                    <option disabled>Select genre</option>
+                                    {% for genre in genres %}
+                                        {% if genre.name == song.genre.name %}
+                                        <option value="{{ genre.id}}" selected>{{ genre.name}}</option>
+                                    {% else %}
+                                        <option value="{{ genre.id}}">{{ genre.name}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="coverArt" class="col-md-4 col-form-label text-md-right">Cover Art URL</label>
+                            <div class="col-md-6">
+                                <input type="text" id="coverArt" placeholder="Cover Art" class="form-control"
+                                       name="song[coverArtUrl]" required value="{{ song.coverArtUrl }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="songUrl" class="col-md-4 col-form-label text-md-right">Song URL</label>
+                            <div class="col-md-6">
+                                <input type="text" id="songUrl" placeholder="Song Url" class="form-control"
+                                       name="song[songUrl]" required value="{{ song.songUrl }}">
+                            </div>
+                        </div>
+                        <input type="text" id="playedCount" name="song[playedCount]" hidden value="{{ song.playedCount}}">
+                        <div class="row d-flex justify-content-around">
+                            <a class="btn btn-lg btn-light" href="{{ path('songs_details', {id: song.id}) }}">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-lg btn-secondary">
+                                Submit
+                            </button>
+                        </div>
+                        {{  form_row(form._token) }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

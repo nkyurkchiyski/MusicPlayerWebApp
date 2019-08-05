@@ -1,0 +1,62 @@
+body {
+    padding-bottom: 20px;
+    background-color: #F9F9F9;
+}
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+    }
+}
+
+.site-main{
+    margin-top: 80px;
+    margin-bottom: 50px;
+}
+
+.form-title{
+    font-size: 25px;
+    text-align: center;
+    background-color: #ffec58;
+    font-weight: 600;
+}
+
+.big-cover{
+    object-fit: cover;
+}
+
+.img-circle{
+    border-radius: 50%;
+}
+
+.card-link{
+    text-shadow: 2px 2px 4px black;
+}
+
+a{
+    color: white;
+    text-decoration: none !important;
+}
+
+
+a:hover{
+    color: white;
+    text-decoration: none !important;
+}
+
+.orpheus-text-color{
+    color: #ffec58;
+}
+
+.text-shadow{
+    text-shadow: 2px 2px 8px black;
+}

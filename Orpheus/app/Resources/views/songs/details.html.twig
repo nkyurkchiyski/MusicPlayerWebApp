@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'detailsSong' %}
+
+{% block main %}
+    <div class="container">
+        <div class="text-center pb-4">
+            <h2>{{ song.title }}</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-5 text-center">
+                <img src="{{ song.artist.imageUrl }}" class="big-cover img-circle shadow" width="350" height="350"
+                     alt="artistImage">
+                <h3 class="mt-3">{{ song.artist.name }}</h3>
+                <h4 class="mt-3">{{ song.genre.name }}</h4>
+            </div>
+            <div class="col-md-7">
+                <div class="card text-center">
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="{{ song.songUrl }}" allow='autoplay'
+                                encrypted-media;></iframe>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row d-flex justify-content-between font-italic">
+                            <p class="col-md-5 text-muted m-0">{{ song.playedCount }} hits</p>
+                            <p class="col-md-7 text-muted m-0">{{ song.dateAdded|date('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="my-3 py-4">
+            <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
+                {% if app.getUser() and (app.getUser().isSongCreator(song) or app.getUser().isAdmin()) %}
+                    <div class="btn-group" role="group" aria-label="First group">
+                        <a href="{{ path('songs_edit', {'id': song.id}) }}" type="button"
+                           class="btn btn-warning">Edit</a>
+                        <a href="{{ path('songs_delete', {'id': song.id}) }}" type="button" class="btn btn-danger">Delete</a>
+                    </div>
+                {% else %}
+                    <div class="font-italic" role="group">
+                        Added by {{ song.user.fullName }}
+                    </div>
+                {% endif %}
+                <div class="btn-group" role="group" aria-label="Second group">
+                    <a href="#" type="button" class="btn btn-success">Like</a>
+                    <a href="#" type="button" class="btn btn-outline-danger">Add</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
