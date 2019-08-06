@@ -53,10 +53,20 @@
                             <a class="dropdown-item" href="#">Create Playlist</a>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ path('artists_all') }}" class="nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Artists
                         </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ path('artists_all') }}">All Artists</a>
+
+                            {% if app.user.isAdmin %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ path('artists_create') }}">Create Artist</a>
+                            {% endif %}
+                        </div>
                     </li>
                     <li class="nav-item">
                         <a href="{{ path('genres_all') }}" class="nav-link">

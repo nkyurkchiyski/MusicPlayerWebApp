@@ -53,7 +53,7 @@ class SongService implements SongServiceInterface
 
     public function create(Song $song): bool
     {
-        $song = $this->mapSong($song);
+        $song = $this->mapSong($song,false);
         return $this->songRepository->save($song);
     }
 

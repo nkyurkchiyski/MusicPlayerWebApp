@@ -49,12 +49,18 @@ class UserController extends Controller
 
     /**
      * @Route("/profile",name = "users_profile")
-     *
+     * @Route("/users/details/{id}", name="users_details")
+     * @param int $id
+     * @return Response
      */
-    public function profile(){
-        $currentUser = $this->userService->currentUser();
+    public function profile(?int $id){
+        $user = $this->userService->currentUser();
+
+        if ($id !== null){
+            $user = $this->userService->getOneById($id);
+        }
 
         return $this->render("users/profile.html.twig",
-            ['user'=>$currentUser]);
+            ['user'=>$user]);
     }
 }

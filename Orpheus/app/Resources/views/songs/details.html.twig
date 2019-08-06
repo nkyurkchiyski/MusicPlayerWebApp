@@ -41,7 +41,8 @@
                     </div>
                 {% else %}
                     <div class="font-italic" role="group">
-                        Added by {{ song.user.fullName }}
+                        Added by <a class="text-warning"
+                                href="{{ path('users_details', {'id': song.user.id}) }}">{{ song.user.fullName }}</a>
                     </div>
                 {% endif %}
                 <div class="btn-group" role="group" aria-label="Second group">

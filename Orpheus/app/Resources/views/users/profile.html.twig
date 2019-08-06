@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'profileUser' %}
+
+{% block main %}
+    <div class="row justify-content-center">
+        <div class="col-md-5 text-center">
+            <div class="mb-3">
+                <img src="{{ asset('/images/profile.png') }}" class="big-cover img-circle shadow" width="400"
+                     height="400"
+                     alt="artistImage">
+                <h2 class="my-3 text-center">{{ user.email }}</h2>
+            </div>
+            <div class="card">
+                <div class="card-body ">
+                    <div class="row d-flex justify-content-around">
+                        <h4>Full Name: <span class="font-italic">{{ user.fullName }}</span></h4>
+                    </div>
+                    <div class="row d-flex justify-content-around">
+                        <h4>Added Songs: <span class="font-italic">{{ user.songs|length }}</span></h4>
+                    </div>
+                    <div class="row d-flex justify-content-around">
+                        <h4>Created Playlists: <span class="font-italic">{{ user.playlists|length }}</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

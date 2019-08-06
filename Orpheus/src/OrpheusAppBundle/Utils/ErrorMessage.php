@@ -11,5 +11,6 @@ final class ErrorMessage
     const INVALID_DATA = "Submitted data is invalid";
     const INVALID_ARTIST_NAME = "Artist name is invalid";
     const INVALID_CREDENTIALS = "Invalid credentials";
+    const CANNOT_DELETE_ARTIST = "You cannot delete this artist";
     const PASSWORD_TOO_SHORT = "Password has to be at least 6 symbols";
 }

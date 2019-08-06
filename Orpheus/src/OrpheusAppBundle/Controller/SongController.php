@@ -158,7 +158,7 @@ class SongController extends Controller
     }
 
     /**
-     * @Route("/songs/{id}", name="songs_details")
+     * @Route("/songs/details/{id}", name="songs_details")
      * @param int $id
      * @return Response
      */
