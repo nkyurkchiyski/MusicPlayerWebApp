@@ -47,10 +47,10 @@
                             Playlists
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">All Playlists</a>
-                            <a class="dropdown-item" href="#">My Playlists</a>
+                            <a class="dropdown-item" href="{{ path('playlists_all') }}">All Playlists</a>
+                            <a class="dropdown-item" href="{{ path('playlists_my') }}">My Playlists</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Create Playlist</a>
+                            <a class="dropdown-item" href="{{ path('playlists_create') }}">Create Playlist</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">

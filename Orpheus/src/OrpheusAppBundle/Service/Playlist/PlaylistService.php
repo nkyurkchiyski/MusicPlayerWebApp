@@ -42,12 +42,18 @@ class PlaylistService implements PlaylistServiceInterface
 
     public function getAllByUserId(int $userId)
     {
-        return $this->playlistRepository->findBy(['users'=>$userId]);
+        return $this->playlistRepository->findBy(['users' => $userId]);
     }
 
+    /**
+     * @param Playlist $playlist
+     * @return bool
+     * @throws \Exception
+     */
     public function create(Playlist $playlist): bool
     {
         $playlist->setUser($this->userService->currentUser());
+        $this->checkPlaylistNameCreate($playlist->getName());
         return $this->playlistRepository->save($playlist);
     }
 
@@ -60,6 +66,7 @@ class PlaylistService implements PlaylistServiceInterface
     {
         $this->checkCredentials($playlist);
         $playlist->setUser($this->userService->currentUser());
+        $this->checkPlaylistNameEdit($playlist->getId(), $playlist->getName());
         return $this->playlistRepository->update($playlist);
     }
 
@@ -71,7 +78,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function delete(Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
-
+        $this->checkPlaylistNameDelete($playlist->getName());
         return $this->playlistRepository->remove($playlist);
     }
 
@@ -102,20 +109,40 @@ class PlaylistService implements PlaylistServiceInterface
     }
 
     /**
-     * @param int $playlistId
+     * @param int $id
      * @param string $name
      * @throws \Exception
      */
-    public function isValidName(?int $playlistId, string $name)
+    private function checkPlaylistNameEdit(int $id, string $name): void
     {
-        $currentUser = $this->userService->currentUser();
-        $userPlaylists = $this->getAllByUserId($currentUser->getId());
-        /** @var Playlist $up */
-        foreach ($userPlaylists as $up){
-            if ($up->getId() !== $playlistId &&
-                $up->getName() === $name) {
-                throw new \Exception(ErrorMessage::PLAYLIST_ALREADY_EXISTS);
-            }
+        /** @var Playlist $playlistPresent */
+        $playlistPresent = $this->playlistRepository->findOneBy(['name' => $name]);
+        if ($playlistPresent !== null && $playlistPresent->getId() !== $id) {
+            throw new \Exception(ErrorMessage::PLAYLIST_ALREADY_EXISTS);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @throws \Exception
+     */
+    private function checkPlaylistNameCreate(string $name): void
+    {
+        /** @var Playlist $playlistPresent */
+        $playlistPresent = $this->playlistRepository->findOneBy(['name' => $name]);
+        if ($playlistPresent !== null) {
+            throw new \Exception(ErrorMessage::PLAYLIST_ALREADY_EXISTS);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @throws \Exception
+     */
+    private function checkPlaylistNameDelete(string $name): void
+    {
+        if ($name === "Liked") {
+            throw new \Exception(ErrorMessage::PLAYLIST_IMMUTABLE);
         }
     }
 

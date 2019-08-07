@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'detailsPlaylist' %}
+
+{% block main %}
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="mb-3">
+                    <img src="{{ playlist.songs is empty ? asset('/images/note.jpg') : playlist.songs[0].coverArtUrl }}"
+                         class="big-cover rounded shadow" width="400"
+                         height="400"
+                         alt="playlistImage">
+                    <h2 class="mt-3 text-center">{{ playlist.name }}</h2>
+                    <small class="font-italic">by {{ playlist.user.fullName }}</small><hr>
+                    {% if app.getUser() and (app.getUser().isPlaylistCreator(playlist) or app.getUser().isAdmin()) %}
+                    <div class="btn-group" role="group" aria-label="First group">
+                        <a href="{{ path('playlists_edit', {'id': playlist.id}) }}" type="button"
+                           class="btn btn-warning">Edit</a>
+                        <a href="{{ path('playlists_delete', {'id': playlist.id}) }}" type="button" class="btn btn-danger">Delete</a>
+                    </div>
+                    {% endif %}
+                </div>
+                <!--Accordion wrapper-->
+                <div class="accordion md-accordion accordion-2" id="accordionEx7" role="tablist"
+                     aria-multiselectable="true">
+
+                    {% for song in playlist.songs %}
+                    <div class="card">
+                        <div class="card-header rgba-stylish-strong z-depth-1 mb-1 form-title" role="tab" id="heading1">
+                            <a data-toggle="collapse" data-parent="#accordionEx7" href="#collapse{{ song.id }}"
+                               aria-expanded="true"
+                               aria-controls="collapse1">
+                                <h5 class="mb-0 text-uppercase font-thin text-dark">
+                                    {{ song.title }} <i class="fas fa-angle-down rotate-icon"></i>
+                                </h5>
+                            </a>
+                        </div>
+                        <div id="collapse{{ song.id }}" class="collapse" role="tabpanel" aria-labelledby="heading1"
+                             data-parent="#accordionEx7">
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe class="embed-responsive-item" src="{{ song.songUrl }}" allow='autoplay'
+                                        encrypted-media;></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

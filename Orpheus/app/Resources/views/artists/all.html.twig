@@ -12,8 +12,8 @@
                 {% for artist in artists %}
                     <a class="col-md-3 text-center text-dark" href="{{ path('artists_details', {'id': artist.id}) }}">
                         <div>
-                            <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="150"
-                                 height="150"
+                            <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="180"
+                                 height="180"
                                  alt="genreImage">
                             <div class="m-3">
                                 <h4 class="">{{ artist.name }}</h4>

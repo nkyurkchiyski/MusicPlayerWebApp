@@ -141,7 +141,7 @@ class ArtistService implements ArtistServiceInterface
     {
         $artistPresent = $this->getOneByName($name);
         if ($artistPresent !== null && $artistPresent->getId() !== $id) {
-            throw new \Exception(ErrorMessage::CANNOT_DELETE_ARTIST);
+            throw new \Exception(ErrorMessage::INVALID_ARTIST_NAME);
         }
     }
 
@@ -153,7 +153,7 @@ class ArtistService implements ArtistServiceInterface
     {
         $artistPresent = $this->getOneByName($name);
         if ($artistPresent !== null) {
-            throw new \Exception(ErrorMessage::CANNOT_DELETE_ARTIST);
+            throw new \Exception(ErrorMessage::INVALID_ARTIST_NAME);
         }
     }
 

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'allPlaylists' %}
+
+{% block main %}
+    <div class="container">
+        <div class="text-center pb-4">
+            <h2>All Playlists</h2>
+        </div>
+        <div class="row d-flex justify-content-around">
+            {% if playlists is not empty %}
+                {% for playlist in playlists %}
+                    <a class="col-md-3 text-center text-dark"
+                       href="{{ path('playlists_details', {'id': playlist.id}) }}">
+                        <div>
+                            <img src="{{ playlist.songs is empty ? asset('/images/note.jpg') : playlist.songs[0].coverArtUrl }}"
+                                 class="big-cover rounded shadow" width="200"
+                                 height="200"
+                                 alt="genreImage">
+                            <div class="m-3">
+                                <h4 class="">{{ playlist.name }}</h4>
+                                <h5 class="text-muted font-weight-light font-italic">{{ playlist.songs|length }}
+                                    songs</h5>
+                                <small class="font-italic">by {{ playlist.user.fullName }}</small>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div>
+                    <h3 class="font-italic text-muted">Currently there are no playlists :(</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

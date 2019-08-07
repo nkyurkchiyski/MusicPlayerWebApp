@@ -5,6 +5,7 @@ namespace OrpheusAppBundle\Controller;
 use OrpheusAppBundle\Entity\Artist;
 use OrpheusAppBundle\Form\ArtistType;
 use OrpheusAppBundle\Service\Artist\ArtistServiceInterface;
+use OrpheusAppBundle\Service\User\UserServiceInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,10 +18,17 @@ class ArtistController extends Controller
      * @var ArtistServiceInterface
      */
     private $artistService;
+    /**
+     * @var UserServiceInterface
+     */
+    private $userService;
 
-    public function __construct(ArtistServiceInterface $artistService)
+    public function __construct(
+        ArtistServiceInterface $artistService,
+        UserServiceInterface $userService)
     {
         $this->artistService = $artistService;
+        $this->userService = $userService;
     }
 
     /**
@@ -78,6 +86,10 @@ class ArtistController extends Controller
      */
     public function editAction(int $id, Request $request)
     {
+        if (!$this->userService->currentUser()->isAdmin()){
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         $artist = $this->artistService->getOneById($id);
 
         if ($artist === null) {
@@ -91,14 +103,14 @@ class ArtistController extends Controller
         if ($form->isSubmitted()) {
             $this->artistService->edit($artist);
 
-            return $this->redirectToRoute('artists_details',array(
+            return $this->redirectToRoute('artists_details', array(
                 'id' => $artist->getId()
             ));
         }
         return $this->render('artists/edit.html.twig',
             [
                 'form' => $form->createView(),
-                'artist' =>$artist
+                'artist' => $artist
             ]);
     }
 
@@ -111,6 +123,10 @@ class ArtistController extends Controller
      */
     public function deleteAction(int $id, Request $request)
     {
+        if (!$this->userService->currentUser()->isAdmin()) {
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         $artist = $this->artistService->getOneById($id);
 
         if ($artist === null) {
@@ -124,7 +140,7 @@ class ArtistController extends Controller
 
         return $this->render('artists/delete.html.twig',
             [
-                'artist' =>$artist
+                'artist' => $artist
             ]);
     }
 }

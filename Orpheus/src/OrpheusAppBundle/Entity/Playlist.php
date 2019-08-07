@@ -61,7 +61,7 @@ class Playlist
         return $this;
     }
 
-    public function getSongs(): ArrayCollection
+    public function getSongs()
     {
         return $this->songs;
     }
