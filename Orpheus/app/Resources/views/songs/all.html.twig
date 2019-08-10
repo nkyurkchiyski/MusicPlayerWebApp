@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'allSongs' %}
+
+{% block main %}
+    <div class="container">
+        <div class="text-center pb-4">
+            <h2>All Songs</h2>
+        </div>
+        <div class="row d-flex justify-content-around">
+            {% if songs is not empty %}
+                {% for song in songs %}
+
+                    <div class="card col-md-2 m-2 p-0 shadow-sm">
+                        <a href="{{ path('songs_details', {'id': song.id}) }}">
+                            <img src="{{ song.coverArtUrl }}" class="card-img-top big-cover" width="200" height="150"
+                                 alt="songImage">
+                            <div class="card-img-overlay card-link">
+                                <h5 class="card-title">{{ song.title }}</h5>
+                                <h6 class="card-text">{{ song.artist.name }}</h6>
+                            </div>
+                            <div class="card-footer">
+                                <div class="row d-flex justify-content-around">
+                                    <small class="col-md-5 text-muted">{{ song.playedCount }} hits</small>
+                                    <small class="col-md-7 text-muted">{{ song.dateAdded|date('d/m/Y') }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                {% endfor %}
+            {% else %}
+                <div>
+                    <h3 class="font-italic text-muted">Currently there are no songs :(</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

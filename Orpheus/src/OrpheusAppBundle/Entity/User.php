@@ -3,6 +3,7 @@
 namespace OrpheusAppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -30,7 +31,6 @@ class User implements UserInterface
     private $fullName;
 
     /**
-     * @var ArrayCollection
      *
      * @ORM\ManyToMany(targetEntity="Role",)
      * @ORM\JoinTable(name="users_roles",
@@ -46,11 +46,15 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @var Collection
+     *
      * @ORM\OneToMany(targetEntity="Playlist", mappedBy="user",cascade={"persist"})
      */
     private $playlists;
 
     /**
+     * @var Collection
+     *
      * @ORM\OneToMany(targetEntity="Song", mappedBy="user")
      */
     private $songs;
@@ -58,7 +62,7 @@ class User implements UserInterface
     public function __construct()
     {
         $this->playlists = new ArrayCollection();
-        $this->roles = new ArrayCollection();
+        $this->roles = [];
         $this->songs = new ArrayCollection();
     }
 
@@ -86,13 +90,13 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     public function getRoles()
     {
         $userRoles = [];
-        foreach ($this->roles as $role){
+        foreach ($this->roles as $role) {
             /** @var $role Role */
             $userRoles[] = $role->getRole();
         }
@@ -111,7 +115,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self
@@ -138,7 +142,7 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
-    public function getPlaylists()
+    public function getPlaylists(): Collection
     {
         return $this->playlists;
     }
@@ -200,7 +204,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getFullName():?string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }

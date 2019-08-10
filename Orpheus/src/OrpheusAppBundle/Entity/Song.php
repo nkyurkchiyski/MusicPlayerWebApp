@@ -3,6 +3,7 @@
 namespace OrpheusAppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -56,7 +57,7 @@ class Song
     private $genre;
 
     /**
-     * @var ArrayCollection
+     * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="Playlist",mappedBy="songs")
      */
@@ -67,6 +68,11 @@ class Song
      * @ORM\JoinColumn(name="artist_id", referencedColumnName="id")
      */
     private $artist;
+
+    /**
+     * @var integer
+     */
+    private $likes;
 
     public function __construct()
     {
@@ -152,7 +158,7 @@ class Song
         return $this;
     }
 
-    public function getPlaylists(): ArrayCollection
+    public function getPlaylists():Collection
     {
         return $this->playlists;
     }
@@ -179,6 +185,25 @@ class Song
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getLikes(): int
+    {
+        if ($this->likes === null)
+        {
+            $this->setLikes();
+        }
+
+        return $this->likes;
+    }
+
+    public function setLikes(): void
+    {
+        $count = $this->playlists->filter(function ($playlist){
+            return $playlist->getName() === "Liked";
+        })->count();
+
+        $this->likes = $count;
     }
 
 }

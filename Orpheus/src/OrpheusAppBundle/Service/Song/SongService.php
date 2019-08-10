@@ -48,12 +48,13 @@ class SongService implements SongServiceInterface
 
     public function getAll()
     {
-        return $this->songRepository->findBy([],['dateAdded'=>'DESC']);
+        return $this->songRepository->findBy([], ['dateAdded' => 'DESC']);
     }
 
     public function create(Song $song): bool
     {
-        $song = $this->mapSong($song,false);
+        $song = $this->mapSong($song);
+        $song->setUser($this->userService->currentUser());
         return $this->songRepository->save($song);
     }
 
@@ -66,7 +67,7 @@ class SongService implements SongServiceInterface
     public function edit(Song $song, bool $isPlay): bool
     {
         $this->checkCredentials($song, $isPlay);
-        $song = $this->mapSong($song, $isPlay);
+        $song = $this->mapSong($song);
 
         return $this->songRepository->update($song);
     }
@@ -78,27 +79,24 @@ class SongService implements SongServiceInterface
      */
     public function delete(Song $song): bool
     {
-        $this->checkCredentials($song,false);
+        $this->checkCredentials($song, false);
         return $this->songRepository->remove($song);
     }
 
-    public function mapSong(Song $song, bool $isPlay): Song
+    public function mapSong(Song $song): Song
     {
         $artist = $this->artistService->getOrCreateByName($song->getArtist()->getName());
         $genre = $this->genreRepository->findOneByName($song->getGenre()->getName());
         $songUrl = $song->getSongUrl();
 
-        if(strpos($songUrl, 'spotify') !== false &&
-           strpos($songUrl, 'embed') == false) {
+        if (strpos($songUrl, 'spotify') !== false &&
+            strpos($songUrl, 'embed') == false) {
             $songUrl = $this->createSongEmbedLink($song->getSongUrl());
             $song->setSongUrl($songUrl);
         }
 
         $song->setArtist($artist);
         $song->setGenre($genre);
-        if (!$isPlay) {
-            $song->setUser($this->userService->currentUser());
-        }
         return $song;
     }
 
@@ -107,17 +105,18 @@ class SongService implements SongServiceInterface
      * @param bool $isPlay
      * @throws \Exception
      */
-    private function checkCredentials(Song $song,bool $isPlay): void
+    private function checkCredentials(Song $song, bool $isPlay): void
     {
         $currentUser = $this->userService->currentUser();
         if (!$currentUser->isAdmin() &&
-            !$currentUser->isSongCreator($song)&&
+            !$currentUser->isSongCreator($song) &&
             !$isPlay) {
             throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
         }
     }
 
-    private function createSongEmbedLink(string $link):string {
+    private function createSongEmbedLink(string $link): string
+    {
         $newStr = substr_replace($link, "embed/", strlen("https://open.spotify.com/"), 0);
         return $newStr;
     }

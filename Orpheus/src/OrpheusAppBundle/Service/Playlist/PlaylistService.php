@@ -65,7 +65,6 @@ class PlaylistService implements PlaylistServiceInterface
     public function edit(Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
-        $playlist->setUser($this->userService->currentUser());
         $this->checkPlaylistNameEdit($playlist->getId(), $playlist->getName());
         return $this->playlistRepository->update($playlist);
     }
@@ -91,6 +90,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function addSongToPlaylist(Song $song, Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
+        $this->isSongPresent($song,$playlist);
         $playlist->addSong($song);
         return $this->playlistRepository->save($playlist);
     }
@@ -156,6 +156,21 @@ class PlaylistService implements PlaylistServiceInterface
         if (!$currentUser->isAdmin() &&
             !$currentUser->isPlaylistCreator($playlist)) {
             throw new \Exception(ErrorMessage::INVALID_CREDENTIALS);
+        }
+    }
+
+    /**
+     * @param Song $song
+     * @param Playlist $playlist
+     * @throws \Exception
+     */
+    private function isSongPresent(Song $song, Playlist $playlist){
+        $isPresent = $playlist->getSongs()->exists(function($key, $element) use ($song){
+            return $song->getId() === $element->getId();
+        });
+
+        if ($isPresent){
+            throw new \Exception(ErrorMessage::SONG_ALREADY_PRESENT);
         }
     }
 }

@@ -62,6 +62,10 @@ class ArtistController extends Controller
      */
     public function createAction(Request $request)
     {
+        if (!$this->userService->currentUser()->isAdmin()){
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         $artist = new Artist();
 
         $form = $this->createForm(ArtistType::class, $artist);

@@ -3,6 +3,7 @@
 namespace OrpheusAppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -31,6 +32,8 @@ class Playlist
 
 
     /**
+     * @var Collection
+     *
      * @ORM\ManyToMany(targetEntity="Song", inversedBy="playlists",orphanRemoval=false,cascade={"persist"})
      * @ORM\JoinTable(name="playlists_songs",
      *      joinColumns={@ORM\JoinColumn(name="playlist_id", referencedColumnName="id")},
@@ -61,7 +64,7 @@ class Playlist
         return $this;
     }
 
-    public function getSongs()
+    public function getSongs():Collection
     {
         return $this->songs;
     }

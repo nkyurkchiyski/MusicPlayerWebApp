@@ -7,6 +7,7 @@ use OrpheusAppBundle\Form\SongType;
 use OrpheusAppBundle\Service\Artist\ArtistServiceInterface;
 use OrpheusAppBundle\Service\Genre\GenreServiceInterface;
 use OrpheusAppBundle\Service\Song\SongServiceInterface;
+use OrpheusAppBundle\Service\User\UserServiceInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,15 +28,21 @@ class SongController extends Controller
      * @var ArtistServiceInterface
      */
     private $artistService;
+    /**
+     * @var UserServiceInterface
+     */
+    private $userService;
 
     public function __construct(
         SongServiceInterface $songService,
         GenreServiceInterface $genreService,
-        ArtistServiceInterface $artistService)
+        ArtistServiceInterface $artistService,
+        UserServiceInterface $userService)
     {
         $this->songService = $songService;
         $this->genreService = $genreService;
         $this->artistService = $artistService;
+        $this->userService = $userService;
     }
 
     /**
@@ -72,7 +79,7 @@ class SongController extends Controller
      * @return Response
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function editAction(int $id,Request $request)
+    public function editAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
 
@@ -87,9 +94,9 @@ class SongController extends Controller
 
 
         if ($form->isSubmitted()) {
-            $this->songService->edit($song,false);
+            $this->songService->edit($song, false);
 
-            return $this->redirectToRoute('songs_details',array(
+            return $this->redirectToRoute('songs_details', array(
                 'id' => $song->getId()
             ));
         }
@@ -98,7 +105,7 @@ class SongController extends Controller
                 'form' => $form->createView(),
                 'genres' => $genres,
                 'artists' => $artists,
-                'song' =>$song
+                'song' => $song
             ]);
     }
 
@@ -109,7 +116,7 @@ class SongController extends Controller
      * @return Response
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function deleteAction(int $id,Request $request)
+    public function deleteAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
 
@@ -131,44 +138,54 @@ class SongController extends Controller
                 'form' => $form->createView(),
                 'genres' => $genres,
                 'artists' => $artists,
-                'song' =>$song
+                'song' => $song
             ]);
     }
 
     /**
      * @Route("/songs/all", name="songs_all")
-     * @param Request $request
-     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @return Response
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function allAction(Request $request)
+    public function allSongsAction()
     {
-        return null;
+        $songs = $this->songService->getAll();
+        return $this->render('songs/all.html.twig', ['songs' => $songs]);
     }
 
     /**
      * @Route("/songs/my", name="songs_my")
-     * @param Request $request
-     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @return Response
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function myAction(Request $request)
+    public function mySongsAction()
     {
-        return null;
+        $songs = $this->userService->currentUser()->getSongs();
+        return $this->render('songs/my.html.twig', ['songs' => $songs]);
     }
 
     /**
      * @Route("/songs/details/{id}", name="songs_details")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @param int $id
+     * @param Request $request
      * @return Response
      */
-    public function detailsAction(int $id)
+    public function detailsAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
-        $count = $song->getPlayedCount()+1;
+        $count = $song->getPlayedCount() + 1;
         $song->setPlayedCount($count);
+        $playlists = $this->userService
+            ->currentUser()
+            ->getPlaylists();
+        $errors = $request->query->get("errors");
 
-        $this->songService->edit($song,true);
-        return $this->render('songs/details.html.twig', ['song' => $song]);
+        $this->songService->edit($song, true);
+        return $this->render('songs/details.html.twig', [
+            'song' => $song,
+            'playlists' => $playlists,
+            'errors' => $errors
+        ]);
     }
 }

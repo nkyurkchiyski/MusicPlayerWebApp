@@ -19,7 +19,7 @@
             <h2>Recently Added</h2>
             <hr>
             <div class="row d-flex justify-content-between">
-                {% for song in songs %}
+                {% for song in songs[:5] %}
 
                     <div class="card col-md-2 m-2 p-0 shadow-sm">
                         <a href="{{ path('songs_details', {'id': song.id}) }}">

@@ -18,46 +18,50 @@ body {
     }
 }
 
-.site-main{
+.site-main {
     margin-top: 80px;
     margin-bottom: 50px;
 }
 
-.form-title{
+.form-title {
     font-size: 25px;
     text-align: center;
     background-color: #ffec58;
     font-weight: 600;
 }
 
-.big-cover{
+.big-cover {
     object-fit: cover;
 }
 
-.img-circle{
+.img-circle {
     border-radius: 50%;
 }
 
-.card-link{
+.card-link {
     text-shadow: 2px 2px 4px black;
 }
 
-a{
+a {
     color: white;
     text-decoration: none !important;
 }
 
 
-a:hover{
+a:hover {
     color: white;
     text-decoration: none !important;
 }
 
-.orpheus-color{
+.orpheus-color {
     color: #ffec58;
     background-color: #ffec58;
 }
 
-.text-shadow{
+.text-shadow {
     text-shadow: 2px 2px 8px black;
+}
+
+#heading1 > div > a:nth-child(1) > h5 > svg{
+    display: none;
 }

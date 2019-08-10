@@ -3,6 +3,17 @@
 {% block body_id 'detailsSong' %}
 
 {% block main %}
+
+    {% if errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for error in errors %}
+                {{ error }}
+            {% endfor %}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
     <div class="container">
         <div class="text-center pb-4">
             <h2>{{ song.title }}</h2>
@@ -11,19 +22,21 @@
             <div class="col-md-5 text-center">
                 <img src="{{ song.artist.imageUrl }}" class="big-cover img-circle shadow" width="350" height="350"
                      alt="artistImage">
-                <h3 class="mt-3">{{ song.artist.name }}</h3>
-                <h4 class="mt-3">{{ song.genre.name }}</h4>
+                <a class="text-dark" href="{{ path('artists_details', {'id': song.artist.id}) }}"><h3
+                            class="mt-3">{{ song.artist.name }}</h3></a>
+                <a class="text-dark" href="{{ path('genres_details', {'id': song.genre.id}) }}"><h4
+                            class="mt-3">{{ song.genre.name }}</h4></a>
             </div>
             <div class="col-md-7">
                 <div class="card text-center">
                     <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="{{ song.songUrl }}" allow='autoplay'
-                                encrypted-media;></iframe>
+                        <iframe class="embed-responsive-item" src="{{ song.songUrl }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                     </div>
                     <div class="card-footer">
-                        <div class="row d-flex justify-content-between font-italic">
-                            <p class="col-md-5 text-muted m-0">{{ song.playedCount }} hits</p>
-                            <p class="col-md-7 text-muted m-0">{{ song.dateAdded|date('d/m/Y') }}</p>
+                        <div class="row d-flex justify-content-around font-italic">
+                            <p class="text-muted m-0">{{ song.playedCount }} hits</p>
+                            <p class="text-muted m-0">{{ song.likes }} likes</p>
+                            <p class="text-muted m-0">{{ song.dateAdded|date('d/m/Y') }}</p>
                         </div>
                     </div>
                 </div>
@@ -42,12 +55,55 @@
                 {% else %}
                     <div class="font-italic" role="group">
                         Added by <a class="text-warning"
-                                href="{{ path('users_details', {'id': song.user.id}) }}">{{ song.user.fullName }}</a>
+                                    href="{{ path('users_details', {'id': song.user.id}) }}">{{ song.user.fullName }}</a>
                     </div>
                 {% endif %}
                 <div class="btn-group" role="group" aria-label="Second group">
-                    <a href="#" type="button" class="btn btn-success">Like</a>
-                    <a href="#" type="button" class="btn btn-outline-danger">Add</a>
+                    <button data-toggle="modal" data-target="#myModal" class="btn btn-outline-danger">
+                        <i class="fas fa-plus fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="card">
+                    <div class="card-header form-title">Add To Playlist</div>
+                    <div class="card-body">
+                        <form name="my-form"
+                              action="{{ path('playlists_addSong', {'id': song.id}) }}" method="post">
+                            <div class="form-group row">
+                                <label for="title" class="col-md-4 col-form-label text-md-right">Title</label>
+                                <div class="col-md-6">
+                                    <input type="text" id="title" placeholder="Title" class="form-control"
+                                           name="song[title]" value="{{ song.title }}" required disabled>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="playlistId" class="col-md-4 col-form-label text-md-right">Playlist</label>
+                                <div class="col-md-6">
+                                    <select id="playlistId" name="playlistId" class="form-control">
+                                        <option disabled>Select playlist</option>
+                                        {% for playlist in playlists %}
+                                            <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row d-flex justify-content-around">
+                                <button class="btn btn-lg btn-light" data-dismiss="modal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-lg btn-secondary">
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

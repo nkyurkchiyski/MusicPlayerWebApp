@@ -2,9 +2,11 @@
 
 namespace OrpheusAppBundle\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use OrpheusAppBundle\Entity\Playlist;
 use OrpheusAppBundle\Form\PlaylistType;
 use OrpheusAppBundle\Service\Playlist\PlaylistServiceInterface;
+use OrpheusAppBundle\Service\Song\SongServiceInterface;
 use OrpheusAppBundle\Service\User\UserServiceInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,14 +24,20 @@ class PlaylistController extends Controller
      * @var UserServiceInterface
      */
     private $userService;
+    /**
+     * @var SongServiceInterface
+     */
+    private $songService;
 
     public function __construct(
         PlaylistServiceInterface $playlistService,
-        UserServiceInterface $userService)
+        UserServiceInterface $userService,
+        SongServiceInterface $songService)
     {
         $this->playlistService = $playlistService;
         $this->userService = $userService;
 
+        $this->songService = $songService;
     }
 
     /**
@@ -41,7 +49,7 @@ class PlaylistController extends Controller
     public function detailsAction(int $id)
     {
         $playlist = $this->playlistService->getOneById($id);
-        
+
         if ($playlist == null) {
             return $this->redirectToRoute("orpheus_index");
         }
@@ -159,12 +167,61 @@ class PlaylistController extends Controller
      */
     public function allPlaylistsAction()
     {
+        /** @var ArrayCollection $playlists */
         $playlists = $this->playlistService->getAll();
 
         return $this->render('playlists/all.html.twig',
             [
                 'playlists' => $playlists
             ]);
+    }
+
+    /**
+     * @Route("/playlists/add/songs/{id}", name="playlists_addSong")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
+     * @param int $id
+     * @param Request $request
+     * @return Response
+     */
+    public function addSongToPlaylistAction(int $id, Request $request)
+    {
+        $currentUser = $this->userService->currentUser();
+        $song = $this->songService->getOneById($id);
+        $playlist = $this->playlistService->getOneById($request->request->get('playlistId'));
+        $errors = [];
+
+        try {
+            if ($currentUser->getId() !== $playlist->getUser()->getId()) {
+                return $this->redirectToRoute("orpheus_index");
+            }
+
+            $this->playlistService->addSongToPlaylist($song, $playlist);
+
+            return $this->redirectToRoute("playlists_details", ['id' => $playlist->getId()]);
+
+        } catch (\Exception $e) {
+            $errors[] = $e->getMessage();
+        }
+
+        return $this->redirectToRoute("songs_details", ['id' => $song->getId(), 'errors' => $errors]);
+    }
+
+    /**
+     * @Route("/playlists/{playlistId}/remove/songs/{songId}", name="playlists_removeSong")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
+     * @param int $playlistId
+     * @param int $songId
+     * @return Response
+     */
+    public function removeSongFromPlaylistAction(int $playlistId, int $songId)
+    {
+        $song = $this->songService->getOneById($songId);
+        $playlist = $this->playlistService->getOneById($playlistId);
+
+        $this->playlistService->removeSongFromPlaylist($song, $playlist);
+
+        return $this->redirectToRoute("playlists_details", ['id' => $playlist->getId()]);
+
     }
 
 }

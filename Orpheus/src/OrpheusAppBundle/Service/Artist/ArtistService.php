@@ -52,6 +52,7 @@ class ArtistService implements ArtistServiceInterface
      */
     public function create(Artist $artist): bool
     {
+        $this->checkCredentials();
         $this->checkArtistNameCreate($artist->getName());
 
         return $this->artistRepository->save($artist);
@@ -77,6 +78,7 @@ class ArtistService implements ArtistServiceInterface
      */
     public function delete(Artist $artist): bool
     {
+        $this->checkCredentials();
         $this->checkUnknownArtist($artist->getId());
 
         $userSongs = $artist->getSongs();

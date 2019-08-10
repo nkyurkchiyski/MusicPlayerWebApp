@@ -14,4 +14,5 @@ final class ErrorMessage
     const INVALID_CREDENTIALS = "Invalid credentials";
     const CANNOT_DELETE_ARTIST = "You cannot delete this artist";
     const PASSWORD_TOO_SHORT = "Password has to be at least 6 symbols";
+    const SONG_ALREADY_PRESENT = "Song already present in playlist";
 }

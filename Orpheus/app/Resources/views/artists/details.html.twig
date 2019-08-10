@@ -9,7 +9,7 @@
                  height="300"
                  alt="artistImage">
             <h2 class="my-3 text-center">{{ artist.name }}</h2>
-            {% if app.getUser() and app.getUser().isAdmin() %}
+            {% if app.getUser() and app.getUser().isAdmin() and artist.name!="Unknown" %}
                 <div class="btn-group" role="group" aria-label="First group">
                     <a href="{{ path('artists_edit', {'id': artist.id}) }}" type="button"
                        class="btn btn-warning">Edit</a>
