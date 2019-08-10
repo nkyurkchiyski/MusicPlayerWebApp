@@ -6,6 +6,7 @@ use OrpheusAppBundle\Entity\Artist;
 use OrpheusAppBundle\Form\ArtistType;
 use OrpheusAppBundle\Service\Artist\ArtistServiceInterface;
 use OrpheusAppBundle\Service\User\UserServiceInterface;
+use OrpheusAppBundle\Utils\ViolationsExtractor;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,14 +76,13 @@ class ArtistController extends Controller
         }
 
         $artist = new Artist();
-        $errors = [];
 
         $form = $this->createForm(ArtistType::class, $artist);
         $form->handleRequest($request);
 
         /** @var ConstraintViolationList $violations */
         $violations = $this->validator->validate($artist);
-        $errors = array_merge($errors, $this->extractViolations($violations));
+        $errors = ViolationsExtractor::extract($violations);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
@@ -92,11 +92,10 @@ class ArtistController extends Controller
                 $errors[] = $e->getMessage();
             }
         }
-        return $this->render('artists/create.html.twig',
-            [
-                'form' => $form->createView(),
-                'errors' => $errors
-            ]);
+        return $this->render('artists/create.html.twig', [
+            'form' => $form->createView(),
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -113,7 +112,6 @@ class ArtistController extends Controller
         }
 
         $artist = $this->artistService->getOneById($id);
-        $errors = [];
 
         if ($artist === null) {
             return $this->redirectToRoute("orpheus_index");
@@ -124,7 +122,7 @@ class ArtistController extends Controller
 
         /** @var ConstraintViolationList $violations */
         $violations = $this->validator->validate($artist);
-        $errors = array_merge($errors, $this->extractViolations($violations));
+        $errors = ViolationsExtractor::extract($violations);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
@@ -167,25 +165,8 @@ class ArtistController extends Controller
             return $this->redirectToRoute("orpheus_index");
         }
 
-        return $this->render('artists/delete.html.twig',
-            [
-                'artist' => $artist
-            ]);
-    }
-
-    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
-    {
-        $output = array();
-        foreach ($violationsList as $violation) {
-            $output[$violation->getPropertyPath()] = $violation->getMessage();
-        }
-        if (null !== $propertyPath) {
-            if (array_key_exists($propertyPath, $output)) {
-                $output = array($propertyPath => $output[$propertyPath]);
-            } else {
-                return array();
-            }
-        }
-        return $output;
+        return $this->render('artists/delete.html.twig', [
+            'artist' => $artist
+        ]);
     }
 }

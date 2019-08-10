@@ -8,6 +8,7 @@ use OrpheusAppBundle\Service\Artist\ArtistServiceInterface;
 use OrpheusAppBundle\Service\Genre\GenreServiceInterface;
 use OrpheusAppBundle\Service\Song\SongServiceInterface;
 use OrpheusAppBundle\Service\User\UserServiceInterface;
+use OrpheusAppBundle\Utils\ViolationsExtractor;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,6 @@ class SongController extends Controller
     public function createAction(Request $request)
     {
         $song = new Song();
-        $errors = [];
 
         $genres = $this->genreService->getAll();
         $artists = $this->artistService->getAll();
@@ -72,9 +72,9 @@ class SongController extends Controller
 
         /** @var ConstraintViolationList $violations */
         $violations = $this->validator->validate($song);
-        $errors = array_merge($errors, $this->extractViolations($violations));
+        $errors = ViolationsExtractor::extract($violations);
 
-        if ($form->isSubmitted()&& $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->songService->create($song);
             return $this->redirectToRoute('songs_my');
         }
@@ -96,7 +96,6 @@ class SongController extends Controller
     public function editAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
-        $errors = [];
         $currentUser = $this->userService->currentUser();
 
         if ($song === null ||
@@ -112,7 +111,7 @@ class SongController extends Controller
 
         /** @var ConstraintViolationList $violations */
         $violations = $this->validator->validate($song);
-        $errors = array_merge($errors, $this->extractViolations($violations));
+        $errors = ViolationsExtractor::extract($violations);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
@@ -159,13 +158,12 @@ class SongController extends Controller
             $this->songService->delete($song);
             return $this->redirectToRoute("orpheus_index");
         }
-        return $this->render('songs/delete.html.twig',
-            [
-                'form' => $form->createView(),
-                'genres' => $genres,
-                'artists' => $artists,
-                'song' => $song
-            ]);
+        return $this->render('songs/delete.html.twig', [
+            'form' => $form->createView(),
+            'genres' => $genres,
+            'artists' => $artists,
+            'song' => $song
+        ]);
     }
 
     /**
@@ -201,10 +199,9 @@ class SongController extends Controller
     {
         $song = $this->songService->getOneById($id);
         $count = $song->getPlayedCount() + 1;
+
         $song->setPlayedCount($count);
-        $playlists = $this->userService
-            ->currentUser()
-            ->getPlaylists();
+        $playlists = $this->userService->currentUser()->getPlaylists();
         $errors = $request->query->get("errors");
 
         $this->songService->edit($song, true);
@@ -215,19 +212,4 @@ class SongController extends Controller
         ]);
     }
 
-    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
-    {
-        $output = array();
-        foreach ($violationsList as $violation) {
-            $output[$violation->getPropertyPath()] = $violation->getMessage();
-        }
-        if (null !== $propertyPath) {
-            if (array_key_exists($propertyPath, $output)) {
-                $output = array($propertyPath => $output[$propertyPath]);
-            } else {
-                return array();
-            }
-        }
-        return $output;
-    }
 }

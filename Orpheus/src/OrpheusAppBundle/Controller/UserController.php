@@ -5,6 +5,7 @@ namespace OrpheusAppBundle\Controller;
 use OrpheusAppBundle\Entity\User;
 use OrpheusAppBundle\Form\UserType;
 use OrpheusAppBundle\Service\User\UserServiceInterface;
+use OrpheusAppBundle\Utils\ViolationsExtractor;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,13 +44,12 @@ class UserController extends Controller
         }
 
         $user = new User();
-        $errors = [];
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         /** @var ConstraintViolationList $violations */
         $violations = $this->validator->validate($user);
-        $errors = array_merge($errors, $this->extractViolations($violations));
+        $errors = ViolationsExtractor::extract($violations);
 
         if ($form->isSubmitted() && $form->isValid() && empty($errors)) {
             try {
@@ -80,23 +80,10 @@ class UserController extends Controller
             $user = $this->userService->getOneById($id);
         }
 
-        return $this->render("users/profile.html.twig",
-            ['user' => $user]);
-    }
+        if ($user === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
 
-    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
-    {
-        $output = array();
-        foreach ($violationsList as $violation) {
-            $output[$violation->getPropertyPath()] = $violation->getMessage();
-        }
-        if (null !== $propertyPath) {
-            if (array_key_exists($propertyPath, $output)) {
-                $output = array($propertyPath => $output[$propertyPath]);
-            } else {
-                return array();
-            }
-        }
-        return $output;
+        return $this->render("users/profile.html.twig", ['user' => $user]);
     }
 }

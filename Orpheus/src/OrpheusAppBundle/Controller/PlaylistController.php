@@ -202,7 +202,13 @@ class PlaylistController extends Controller
     {
         $currentUser = $this->userService->currentUser();
         $song = $this->songService->getOneById($id);
-        $playlist = $this->playlistService->getOneById($request->request->get('playlistId'));
+        $playlistId = $request->request->get('playlistId');
+
+        if ($song === null || $playlistId === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
+
+        $playlist = $this->playlistService->getOneById($playlistId);
         $errors = [];
 
         try {
@@ -232,6 +238,10 @@ class PlaylistController extends Controller
     {
         $song = $this->songService->getOneById($songId);
         $playlist = $this->playlistService->getOneById($playlistId);
+
+        if ($song === null || $playlist === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
 
         $this->playlistService->removeSongFromPlaylist($song, $playlist);
 
