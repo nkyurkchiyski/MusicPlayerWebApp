@@ -13,6 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SongController extends Controller
 {
@@ -32,17 +34,23 @@ class SongController extends Controller
      * @var UserServiceInterface
      */
     private $userService;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
     public function __construct(
         SongServiceInterface $songService,
         GenreServiceInterface $genreService,
         ArtistServiceInterface $artistService,
-        UserServiceInterface $userService)
+        UserServiceInterface $userService,
+        ValidatorInterface $validator)
     {
         $this->songService = $songService;
         $this->genreService = $genreService;
         $this->artistService = $artistService;
         $this->userService = $userService;
+        $this->validator = $validator;
     }
 
     /**
@@ -54,22 +62,28 @@ class SongController extends Controller
     public function createAction(Request $request)
     {
         $song = new Song();
+        $errors = [];
+
         $genres = $this->genreService->getAll();
         $artists = $this->artistService->getAll();
 
         $form = $this->createForm(SongType::class, $song);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($song);
+        $errors = array_merge($errors, $this->extractViolations($violations));
+
+        if ($form->isSubmitted()&& $form->isValid()) {
             $this->songService->create($song);
-            return $this->redirectToRoute('orpheus_index');
+            return $this->redirectToRoute('songs_my');
         }
-        return $this->render('songs/create.html.twig',
-            [
-                'form' => $form->createView(),
-                'genres' => $genres,
-                'artists' => $artists,
-            ]);
+        return $this->render('songs/create.html.twig', [
+            'form' => $form->createView(),
+            'genres' => $genres,
+            'artists' => $artists,
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -82,31 +96,40 @@ class SongController extends Controller
     public function editAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
+        $errors = [];
+        $currentUser = $this->userService->currentUser();
 
-        if ($song === null) {
+        if ($song === null ||
+            (!$currentUser->isSongCreator($song) &&
+                !$currentUser->isAdmin())) {
             return $this->redirectToRoute("orpheus_index");
         }
-
         $genres = $this->genreService->getAll();
         $artists = $this->artistService->getAll();
+
         $form = $this->createForm(SongType::class, $song);
         $form->handleRequest($request);
 
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($song);
+        $errors = array_merge($errors, $this->extractViolations($violations));
 
-        if ($form->isSubmitted()) {
-            $this->songService->edit($song, false);
-
-            return $this->redirectToRoute('songs_details', array(
-                'id' => $song->getId()
-            ));
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->songService->edit($song, false);
+                return $this->redirectToRoute('songs_details', ['id' => $song->getId()]);
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
-        return $this->render('songs/edit.html.twig',
-            [
-                'form' => $form->createView(),
-                'genres' => $genres,
-                'artists' => $artists,
-                'song' => $song
-            ]);
+
+        return $this->render('songs/edit.html.twig', [
+            'form' => $form->createView(),
+            'genres' => $genres,
+            'artists' => $artists,
+            'song' => $song,
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -119,8 +142,11 @@ class SongController extends Controller
     public function deleteAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
+        $currentUser = $this->userService->currentUser();
 
-        if ($song === null) {
+        if ($song === null ||
+            (!$currentUser->isSongCreator($song) &&
+                !$currentUser->isAdmin())) {
             return $this->redirectToRoute("orpheus_index");
         }
 
@@ -147,7 +173,7 @@ class SongController extends Controller
      * @return Response
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function allSongsAction()
+    public function allAction()
     {
         $songs = $this->songService->getAll();
         return $this->render('songs/all.html.twig', ['songs' => $songs]);
@@ -158,7 +184,7 @@ class SongController extends Controller
      * @return Response
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
-    public function mySongsAction()
+    public function myAction()
     {
         $songs = $this->userService->currentUser()->getSongs();
         return $this->render('songs/my.html.twig', ['songs' => $songs]);
@@ -187,5 +213,21 @@ class SongController extends Controller
             'playlists' => $playlists,
             'errors' => $errors
         ]);
+    }
+
+    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
+    {
+        $output = array();
+        foreach ($violationsList as $violation) {
+            $output[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+        if (null !== $propertyPath) {
+            if (array_key_exists($propertyPath, $output)) {
+                $output = array($propertyPath => $output[$propertyPath]);
+            } else {
+                return array();
+            }
+        }
+        return $output;
     }
 }

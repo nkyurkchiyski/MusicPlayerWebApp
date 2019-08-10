@@ -1,16 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block body_id 'deleteArtist' %}
+{% block body_id 'deletePlaylist' %}
 
 {% block main %}
     <div class="row justify-content-center">
         <div class="col-md-5 text-center">
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-header form-title">Delete Playlist</div>
                 <div class="card-body">
+                    {% if errors is not empty %}
+                        <div class="alert alert-danger text-center" role="alert">
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <form name="my-form" enctype="multipart/form-data"
                           action="{{ path('playlists_delete', {id: playlist.id}) }}" method="post">
                         <div class="form-group row">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
                             <label for="title" class="col-md-4 col-form-label text-md-right">Name</label>
                             <div class="col-md-6">
                                 <input type="text" id="name" placeholder="Name" class="form-control"

@@ -5,10 +5,17 @@
 {% block main %}
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-header form-title">Create Song</div>
                 <div class="card-body">
-                    <div class="alert alert-dark" role="alert">
+                    {% if errors is not empty %}
+                        <div class="alert alert-danger text-center" role="alert">
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="alert alert-dark text-center" role="alert">
                         WARNING: Beware that some embedded song url links won't work!
                     </div>
                     <form name="my-form" enctype="multipart/form-data" action="{{ path('songs_create') }}" method="post">

@@ -11,6 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ArtistController extends Controller
 {
@@ -22,13 +24,19 @@ class ArtistController extends Controller
      * @var UserServiceInterface
      */
     private $userService;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
     public function __construct(
         ArtistServiceInterface $artistService,
-        UserServiceInterface $userService)
+        UserServiceInterface $userService,
+        ValidatorInterface $validator)
     {
         $this->artistService = $artistService;
         $this->userService = $userService;
+        $this->validator = $validator;
     }
 
     /**
@@ -62,22 +70,32 @@ class ArtistController extends Controller
      */
     public function createAction(Request $request)
     {
-        if (!$this->userService->currentUser()->isAdmin()){
+        if (!$this->userService->currentUser()->isAdmin()) {
             return $this->redirectToRoute("orpheus_index");
         }
 
         $artist = new Artist();
+        $errors = [];
 
         $form = $this->createForm(ArtistType::class, $artist);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            $this->artistService->create($artist);
-            return $this->redirectToRoute('orpheus_index');
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($artist);
+        $errors = array_merge($errors, $this->extractViolations($violations));
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->artistService->create($artist);
+                return $this->redirectToRoute('artists_all');
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
         return $this->render('artists/create.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'errors' => $errors
             ]);
     }
 
@@ -90,11 +108,12 @@ class ArtistController extends Controller
      */
     public function editAction(int $id, Request $request)
     {
-        if (!$this->userService->currentUser()->isAdmin()){
+        if (!$this->userService->currentUser()->isAdmin()) {
             return $this->redirectToRoute("orpheus_index");
         }
 
         $artist = $this->artistService->getOneById($id);
+        $errors = [];
 
         if ($artist === null) {
             return $this->redirectToRoute("orpheus_index");
@@ -103,19 +122,25 @@ class ArtistController extends Controller
         $form = $this->createForm(ArtistType::class, $artist);
         $form->handleRequest($request);
 
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($artist);
+        $errors = array_merge($errors, $this->extractViolations($violations));
 
-        if ($form->isSubmitted()) {
-            $this->artistService->edit($artist);
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->artistService->edit($artist);
 
-            return $this->redirectToRoute('artists_details', array(
-                'id' => $artist->getId()
-            ));
+                return $this->redirectToRoute('artists_details', ['id' => $artist->getId()]);
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
-        return $this->render('artists/edit.html.twig',
-            [
-                'form' => $form->createView(),
-                'artist' => $artist
-            ]);
+
+        return $this->render('artists/edit.html.twig', [
+            'form' => $form->createView(),
+            'artist' => $artist,
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -146,5 +171,21 @@ class ArtistController extends Controller
             [
                 'artist' => $artist
             ]);
+    }
+
+    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
+    {
+        $output = array();
+        foreach ($violationsList as $violation) {
+            $output[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+        if (null !== $propertyPath) {
+            if (array_key_exists($propertyPath, $output)) {
+                $output = array($propertyPath => $output[$propertyPath]);
+            } else {
+                return array();
+            }
+        }
+        return $output;
     }
 }

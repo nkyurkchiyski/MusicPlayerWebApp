@@ -12,8 +12,10 @@
             {% if app.getUser() and app.getUser().isAdmin() and artist.name!="Unknown" %}
                 <div class="btn-group" role="group" aria-label="First group">
                     <a href="{{ path('artists_edit', {'id': artist.id}) }}" type="button"
-                       class="btn btn-warning">Edit</a>
-                    <a href="{{ path('artists_delete', {'id': artist.id}) }}" type="button" class="btn btn-danger">Delete</a>
+                       class="btn btn-lg btn-warning"><i class="fas fa-edit"></i></a>
+                    <a href="{{ path('artists_delete', {'id': artist.id}) }}" type="button"
+                       class="btn btn-lg btn-danger">
+                        <i class="fas fa-trash-alt"></i></a>
                 </div>
             {% endif %}
         </div>

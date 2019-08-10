@@ -9,7 +9,6 @@ use OrpheusAppBundle\Entity\Artist;
 interface ArtistServiceInterface
 {
     public function getOneByName(string $artistName): ?Artist;
-    public function getOrCreateByName(string $artistName): ?Artist;
     public function getAll();
     public function getAllSortedBySongsCount();
     public function getOneById(int $id): ?Artist;

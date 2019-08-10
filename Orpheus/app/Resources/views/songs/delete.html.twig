@@ -4,8 +4,8 @@
 
 {% block main %}
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
+        <div class="col-md-8 text-center">
+            <div class="card shadow">
                 <div class="card-header form-title">Delete Song</div>
                 <div class="card-body">
                     <form name="my-form" action="{{ path('songs_delete', {id: song.id}) }}" method="post">

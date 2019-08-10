@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OrpheusAppBundle\Service\Song;
 
 use OrpheusAppBundle\Entity\Song;
@@ -85,13 +84,13 @@ class SongService implements SongServiceInterface
 
     public function mapSong(Song $song): Song
     {
-        $artist = $this->artistService->getOrCreateByName($song->getArtist()->getName());
+        $artist = $this->artistService->getOneByName($song->getArtist()->getName());
         $genre = $this->genreRepository->findOneByName($song->getGenre()->getName());
         $songUrl = $song->getSongUrl();
 
         if (strpos($songUrl, 'spotify') !== false &&
             strpos($songUrl, 'embed') == false) {
-            $songUrl = $this->createSongEmbedLink($song->getSongUrl());
+            $songUrl = $this->createEmbedLink($song->getSongUrl());
             $song->setSongUrl($songUrl);
         }
 
@@ -115,7 +114,7 @@ class SongService implements SongServiceInterface
         }
     }
 
-    private function createSongEmbedLink(string $link): string
+    private function createEmbedLink(string $link): string
     {
         $newStr = substr_replace($link, "embed/", strlen("https://open.spotify.com/"), 0);
         return $newStr;

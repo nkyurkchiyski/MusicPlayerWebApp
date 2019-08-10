@@ -5,6 +5,7 @@ namespace OrpheusAppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="songs")
@@ -35,12 +36,20 @@ class Song
     private $dateAdded;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text", nullable=false)
+     * @Assert\Regex(
+     *     pattern="/^(http|https).+/",
+     *     message="The cover art url has to start with http or https"
+     * )
      */
     private $coverArtUrl;
 
     /**
      * @ORM\Column(type="text", nullable=false)
+     * @Assert\Regex(
+     *     pattern="/^(http|https).+/",
+     *     message="The song url has to start with http or https"
+     * )
      */
     private $songUrl;
 

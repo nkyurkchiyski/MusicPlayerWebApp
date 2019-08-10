@@ -5,6 +5,7 @@ namespace OrpheusAppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="artists")
@@ -20,12 +21,18 @@ class Artist
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=50, unique=true)
+     *
      */
     private $name;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
+     * @Assert\Regex(
+     *     pattern="/^(http|https).+/",
+     *     message="The image url has to start with http or https"
+     * )
+     *
      */
     private $imageUrl;
 

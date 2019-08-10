@@ -5,6 +5,7 @@ namespace OrpheusAppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -22,16 +23,21 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true,
+     *     checkHost=true
+     * )
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      */
     private $fullName;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="Role",)
      * @ORM\JoinTable(name="users_roles",
      *     joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
@@ -42,6 +48,12 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 50,
+     *      minMessage = "Your password must be at least {{ limit }} characters long",
+     *      maxMessage = "Your password cannot be longer than {{ limit }} characters"
+     * )
      */
     private $password;
 
@@ -62,7 +74,7 @@ class User implements UserInterface
     public function __construct()
     {
         $this->playlists = new ArrayCollection();
-        $this->roles = [];
+        $this->roles = new ArrayCollection();
         $this->songs = new ArrayCollection();
     }
 

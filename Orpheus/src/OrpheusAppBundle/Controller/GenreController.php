@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GenreController extends Controller
 {
-
     /**
      * @var GenreServiceInterface
      */
@@ -22,7 +21,7 @@ class GenreController extends Controller
     }
 
     /**
-     * @Route("/genres", name="genres_all")
+     * @Route("/genres/all", name="genres_all")
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @return Response
      */

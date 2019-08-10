@@ -1,18 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block body_id 'deleteArtist' %}
+{% block body_id 'editArtist' %}
 
 {% block main %}
     <div class="row justify-content-center">
         <div class="col-md-5 text-center">
-            <div class="mb-3">
-                <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="400"
-                     height="400"
-                     alt="artistImage">
-            </div>
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-header form-title">Edit Artist</div>
                 <div class="card-body">
+                    {% if errors is not empty %}
+                        <div class="alert alert-danger text-center" role="alert">
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <form name="my-form" enctype="multipart/form-data" action="{{ path('artists_edit', {id: artist.id}) }}" method="post">
                         <div class="form-group row">
                             <label for="title" class="col-md-4 col-form-label text-md-right">Name</label>
@@ -29,7 +31,7 @@
                             </div>
                         </div>
                         <div class="row d-flex justify-content-around">
-                            <a class="btn btn-lg btn-light" href="{{ path('orpheus_index') }}">
+                            <a class="btn btn-lg btn-light" href="{{ path('artists_details', {id: artist.id}) }}">
                                 Cancel
                             </a>
                             <button type="submit" class="btn btn-lg btn-secondary">

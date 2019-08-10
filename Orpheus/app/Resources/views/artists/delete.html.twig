@@ -5,12 +5,12 @@
 {% block main %}
     <div class="row justify-content-center">
         <div class="col-md-5 text-center">
-            <div class="mb-3">
+            <div class="mt-0 mb-3">
                 <img src="{{ artist.imageUrl }}" class="big-cover img-circle shadow" width="400"
                      height="400"
                      alt="artistImage">
             </div>
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-header form-title">Delete Artist</div>
                 <div class="card-body">
                     <form name="my-form" enctype="multipart/form-data" action="{{ path('artists_delete', {id: artist.id}) }}" method="post">
@@ -28,8 +28,9 @@
                                        name="artist[imageUrl]" value="{{ artist.imageUrl }}" required disabled>
                             </div>
                         </div>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
                         <div class="row d-flex justify-content-around">
-                            <a class="btn btn-lg btn-light" href="{{ path('orpheus_index') }}">
+                            <a class="btn btn-lg btn-light" href="{{ path('artists_details', {id: artist.id}) }}">
                                 Cancel
                             </a>
                             <button type="submit" class="btn btn-lg btn-secondary">

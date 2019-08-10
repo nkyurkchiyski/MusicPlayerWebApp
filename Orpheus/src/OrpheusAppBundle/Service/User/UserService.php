@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OrpheusAppBundle\Service\User;
 
 use OrpheusAppBundle\Entity\Playlist;
@@ -87,8 +86,6 @@ class UserService implements UserServiceInterface
      */
     public function edit(User $user): bool
     {
-        $this->checkPassword($user);
-
         $passwordHash =
             $this->encryptionService->hash($user->getPassword());
         $user->setPassword($passwordHash);
@@ -106,8 +103,6 @@ class UserService implements UserServiceInterface
             throw new \Exception(ErrorMessage::EMAIL_TAKEN);
         }
 
-        $this->checkPassword($user);
-
         $passwordHash =
             $this->encryptionService->hash($user->getPassword());
         $user->setPassword($passwordHash);
@@ -115,14 +110,4 @@ class UserService implements UserServiceInterface
         return $user;
     }
 
-    /**
-     * @param User $user
-     * @throws \Exception
-     */
-    private function checkPassword(User $user): void
-    {
-        if (strlen($user->getPassword()) < 6) {
-            throw new \Exception(ErrorMessage::PASSWORD_TOO_SHORT);
-        }
-    }
 }

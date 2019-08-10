@@ -36,7 +36,6 @@ class PlaylistController extends Controller
     {
         $this->playlistService = $playlistService;
         $this->userService = $userService;
-
         $this->songService = $songService;
     }
 
@@ -66,17 +65,23 @@ class PlaylistController extends Controller
     public function createAction(Request $request)
     {
         $playlist = new Playlist();
+        $errors = [];
 
         $form = $this->createForm(PlaylistType::class, $playlist);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            $this->playlistService->create($playlist);
-            return $this->redirectToRoute('orpheus_index');
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->playlistService->create($playlist);
+                return $this->redirectToRoute('orpheus_index');
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
         return $this->render('playlists/create.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'errors' => $errors
             ]);
     }
 
@@ -91,6 +96,7 @@ class PlaylistController extends Controller
     {
         $currentUser = $this->userService->currentUser();
         $playlist = $this->playlistService->getOneById($id);
+        $errors = [];
 
         if ($playlist == null ||
             (!$currentUser->isPlaylistCreator($playlist) &&
@@ -102,17 +108,19 @@ class PlaylistController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            $this->playlistService->edit($playlist);
+            try {
+                $this->playlistService->edit($playlist);
 
-            return $this->redirectToRoute('playlists_details', array(
-                'id' => $playlist->getId()
-            ));
+                return $this->redirectToRoute('playlists_details', ['id' => $playlist->getId()]);
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
-        return $this->render('playlists/edit.html.twig',
-            [
-                'form' => $form->createView(),
-                'playlist' => $playlist
-            ]);
+        return $this->render('playlists/edit.html.twig', [
+            'form' => $form->createView(),
+            'playlist' => $playlist,
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -126,6 +134,7 @@ class PlaylistController extends Controller
     {
         $currentUser = $this->userService->currentUser();
         $playlist = $this->playlistService->getOneById($id);
+        $errors = [];
 
         if ($playlist == null ||
             (!$currentUser->isPlaylistCreator($playlist) &&
@@ -134,14 +143,18 @@ class PlaylistController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            $this->playlistService->delete($playlist);
-            return $this->redirectToRoute("orpheus_index");
+            try {
+                $this->playlistService->delete($playlist);
+                return $this->redirectToRoute("orpheus_index");
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
 
-        return $this->render('playlists/delete.html.twig',
-            [
-                'playlist' => $playlist
-            ]);
+        return $this->render('playlists/delete.html.twig', [
+            'playlist' => $playlist,
+            'errors' => $errors
+        ]);
     }
 
     /**
@@ -149,7 +162,7 @@ class PlaylistController extends Controller
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @return Response
      */
-    public function myPlaylistsAction()
+    public function myAction()
     {
         $currentUser = $this->userService->currentUser();
         $playlists = $currentUser->getPlaylists();
@@ -165,15 +178,17 @@ class PlaylistController extends Controller
      * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @return Response
      */
-    public function allPlaylistsAction()
+    public function allAction()
     {
         /** @var ArrayCollection $playlists */
-        $playlists = $this->playlistService->getAll();
+        $playlists = $this->playlistService->getAll()
+            ->filter(function ($entry) {
+                return $entry->getName() !== "Liked";
+            });
 
-        return $this->render('playlists/all.html.twig',
-            [
-                'playlists' => $playlists
-            ]);
+        return $this->render('playlists/all.html.twig', [
+            'playlists' => $playlists
+        ]);
     }
 
     /**
@@ -221,7 +236,6 @@ class PlaylistController extends Controller
         $this->playlistService->removeSongFromPlaylist($song, $playlist);
 
         return $this->redirectToRoute("playlists_details", ['id' => $playlist->getId()]);
-
     }
 
 }

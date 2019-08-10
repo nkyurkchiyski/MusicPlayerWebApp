@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OrpheusAppBundle\Service\Artist;
 
 
@@ -12,7 +11,6 @@ use OrpheusAppBundle\Utils\ErrorMessage;
 
 class ArtistService implements ArtistServiceInterface
 {
-
     /**
      * @var ArtistRepository
      */
@@ -53,7 +51,7 @@ class ArtistService implements ArtistServiceInterface
     public function create(Artist $artist): bool
     {
         $this->checkCredentials();
-        $this->checkArtistNameCreate($artist->getName());
+        $this->checkNameCreate($artist->getName());
 
         return $this->artistRepository->save($artist);
     }
@@ -66,8 +64,8 @@ class ArtistService implements ArtistServiceInterface
     public function edit(Artist $artist): bool
     {
         $this->checkCredentials();
-        $this->checkArtistNameEdit($artist->getId(),$artist->getName());
-        $this->checkUnknownArtist($artist->getId());
+        $this->checkNameEdit($artist->getId(),$artist->getName());
+        $this->checkUnknownName($artist->getId());
         return $this->artistRepository->update($artist);
     }
 
@@ -79,7 +77,7 @@ class ArtistService implements ArtistServiceInterface
     public function delete(Artist $artist): bool
     {
         $this->checkCredentials();
-        $this->checkUnknownArtist($artist->getId());
+        $this->checkUnknownName($artist->getId());
 
         $userSongs = $artist->getSongs();
         $unknownArtist = $this->getOneByName("Unknown");
@@ -90,27 +88,6 @@ class ArtistService implements ArtistServiceInterface
         }
 
         return $this->artistRepository->remove($artist);
-    }
-
-    /**
-     * @param string $artistName
-     * @return Artist
-     * @throws \Exception
-     */
-    public function getOrCreateByName(string $artistName): ?Artist
-    {
-        if (!isset($artistName) || ctype_space($artistName)) {
-            throw new \Exception(ErrorMessage::INVALID_ARTIST_NAME);
-        }
-
-        $artist = $this->getOneByName($artistName);
-
-        if (null === $artist) {
-            $artist = new Artist();
-            $artist->setName($artistName);
-            $this->create($artist);
-        }
-        return $artist;
     }
 
     /**
@@ -139,7 +116,7 @@ class ArtistService implements ArtistServiceInterface
      * @param string $name
      * @throws \Exception
      */
-    private function checkArtistNameEdit(int $id, string $name): void
+    private function checkNameEdit(int $id, string $name): void
     {
         $artistPresent = $this->getOneByName($name);
         if ($artistPresent !== null && $artistPresent->getId() !== $id) {
@@ -151,7 +128,7 @@ class ArtistService implements ArtistServiceInterface
      * @param string $name
      * @throws \Exception
      */
-    private function checkArtistNameCreate(string $name): void
+    private function checkNameCreate(string $name): void
     {
         $artistPresent = $this->getOneByName($name);
         if ($artistPresent !== null) {
@@ -163,7 +140,7 @@ class ArtistService implements ArtistServiceInterface
      * @param int $id
      * @throws \Exception
      */
-    public function checkUnknownArtist(int $id): void
+    public function checkUnknownName(int $id): void
     {
         $artist = $this->getOneByName("Unknown");
         if ($artist->getId() === $id) {

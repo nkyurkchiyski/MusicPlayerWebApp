@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends Controller
 {
@@ -16,10 +18,17 @@ class UserController extends Controller
      * @var UserServiceInterface
      */
     private $userService;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
-    public function __construct(UserServiceInterface $userService)
+    public function __construct(
+        UserServiceInterface $userService,
+        ValidatorInterface $validator)
     {
         $this->userService = $userService;
+        $this->validator = $validator;
     }
 
     /**
@@ -27,23 +36,33 @@ class UserController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function register(Request $request)
+    public function registerAction(Request $request)
     {
-        if ($this->userService->currentUser()){
+        if ($this->userService->currentUser()) {
             return $this->redirectToRoute("orpheus_index");
         }
 
         $user = new User();
-        $form = $this->createForm(UserType::class,$user);
+        $errors = [];
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted())
-        {
-            $this->userService->create($user);
-            return $this->redirectToRoute("security_login");
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($user);
+        $errors = array_merge($errors, $this->extractViolations($violations));
+
+        if ($form->isSubmitted() && $form->isValid() && empty($errors)) {
+            try {
+                $this->userService->create($user);
+                return $this->redirectToRoute("security_login");
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
-        return $this->render("users/register.html.twig",[
-            'form'=>$form->createView()
+
+        return $this->render("users/register.html.twig", [
+            'form' => $form->createView(),
+            'errors' => $errors
         ]);
     }
 
@@ -53,14 +72,31 @@ class UserController extends Controller
      * @param int $id
      * @return Response
      */
-    public function profile(?int $id){
+    public function profileAction(?int $id)
+    {
         $user = $this->userService->currentUser();
 
-        if ($id !== null){
+        if ($id !== null) {
             $user = $this->userService->getOneById($id);
         }
 
         return $this->render("users/profile.html.twig",
-            ['user'=>$user]);
+            ['user' => $user]);
+    }
+
+    private function extractViolations(ConstraintViolationList $violationsList, $propertyPath = null)
+    {
+        $output = array();
+        foreach ($violationsList as $violation) {
+            $output[$violation->getPropertyPath()] = $violation->getMessage();
+        }
+        if (null !== $propertyPath) {
+            if (array_key_exists($propertyPath, $output)) {
+                $output = array($propertyPath => $output[$propertyPath]);
+            } else {
+                return array();
+            }
+        }
+        return $output;
     }
 }

@@ -5,7 +5,7 @@
 {% block main %}
 
     {% if errors %}
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger text-center" role="alert">
             {% for error in errors %}
                 {{ error }}
             {% endfor %}
@@ -28,9 +28,10 @@
                             class="mt-3">{{ song.genre.name }}</h4></a>
             </div>
             <div class="col-md-7">
-                <div class="card text-center">
+                <div class="card text-center shadow">
                     <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="{{ song.songUrl }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        <iframe class="embed-responsive-item" src="{{ song.songUrl }}" frameborder="0"
+                                allow="autoplay; encrypted-media" allowfullscreen></iframe>
                     </div>
                     <div class="card-footer">
                         <div class="row d-flex justify-content-around font-italic">
@@ -49,8 +50,9 @@
                 {% if app.getUser() and (app.getUser().isSongCreator(song) or app.getUser().isAdmin()) %}
                     <div class="btn-group" role="group" aria-label="First group">
                         <a href="{{ path('songs_edit', {'id': song.id}) }}" type="button"
-                           class="btn btn-warning">Edit</a>
-                        <a href="{{ path('songs_delete', {'id': song.id}) }}" type="button" class="btn btn-danger">Delete</a>
+                           class="btn btn-lg btn-warning"><i class="fas fa-edit"></i></a>
+                        <a href="{{ path('songs_delete', {'id': song.id}) }}" type="button"
+                           class="btn btn-lg btn-danger"><i class="fas fa-trash-alt"></i></a>
                     </div>
                 {% else %}
                     <div class="font-italic" role="group">

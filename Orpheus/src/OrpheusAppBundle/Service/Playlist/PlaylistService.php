@@ -1,9 +1,8 @@
 <?php
 
-
 namespace OrpheusAppBundle\Service\Playlist;
 
-
+use Doctrine\Common\Collections\ArrayCollection;
 use OrpheusAppBundle\Entity\Playlist;
 use OrpheusAppBundle\Entity\Song;
 use OrpheusAppBundle\Repository\PlaylistRepository;
@@ -12,7 +11,6 @@ use OrpheusAppBundle\Utils\ErrorMessage;
 
 class PlaylistService implements PlaylistServiceInterface
 {
-
     /**
      * @var PlaylistRepository
      */
@@ -32,7 +30,7 @@ class PlaylistService implements PlaylistServiceInterface
 
     public function getAll()
     {
-        return $this->playlistRepository->findAll();
+        return new ArrayCollection($this->playlistRepository->findAll());
     }
 
     public function getOneById(int $id): ?Playlist
@@ -53,7 +51,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function create(Playlist $playlist): bool
     {
         $playlist->setUser($this->userService->currentUser());
-        $this->checkPlaylistNameCreate($playlist->getName());
+        $this->checkNameCreate($playlist->getName());
         return $this->playlistRepository->save($playlist);
     }
 
@@ -65,7 +63,8 @@ class PlaylistService implements PlaylistServiceInterface
     public function edit(Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
-        $this->checkPlaylistNameEdit($playlist->getId(), $playlist->getName());
+        $this->checkLiked();
+        $this->checkNameEdit($playlist->getId(), $playlist->getName());
         return $this->playlistRepository->update($playlist);
     }
 
@@ -77,7 +76,7 @@ class PlaylistService implements PlaylistServiceInterface
     public function delete(Playlist $playlist): bool
     {
         $this->checkCredentials($playlist);
-        $this->checkPlaylistNameDelete($playlist->getName());
+        $this->checkLikedName($playlist->getName());
         return $this->playlistRepository->remove($playlist);
     }
 
@@ -113,7 +112,7 @@ class PlaylistService implements PlaylistServiceInterface
      * @param string $name
      * @throws \Exception
      */
-    private function checkPlaylistNameEdit(int $id, string $name): void
+    private function checkNameEdit(int $id, string $name): void
     {
         /** @var Playlist $playlistPresent */
         $playlistPresent = $this->playlistRepository->findOneBy(['name' => $name]);
@@ -126,11 +125,14 @@ class PlaylistService implements PlaylistServiceInterface
      * @param string $name
      * @throws \Exception
      */
-    private function checkPlaylistNameCreate(string $name): void
+    private function checkNameCreate(string $name): void
     {
-        /** @var Playlist $playlistPresent */
-        $playlistPresent = $this->playlistRepository->findOneBy(['name' => $name]);
-        if ($playlistPresent !== null) {
+        $userPlaylists = $this->userService->currentUser()->getPlaylists();
+        $isPresent = $userPlaylists->exists(function($key, $element) use ($name){
+            return $element->getName() === $name;
+        });
+
+        if ($isPresent) {
             throw new \Exception(ErrorMessage::PLAYLIST_ALREADY_EXISTS);
         }
     }
@@ -139,7 +141,7 @@ class PlaylistService implements PlaylistServiceInterface
      * @param string $name
      * @throws \Exception
      */
-    private function checkPlaylistNameDelete(string $name): void
+    private function checkLikedName(string $name): void
     {
         if ($name === "Liked") {
             throw new \Exception(ErrorMessage::PLAYLIST_IMMUTABLE);
@@ -171,6 +173,21 @@ class PlaylistService implements PlaylistServiceInterface
 
         if ($isPresent){
             throw new \Exception(ErrorMessage::SONG_ALREADY_PRESENT);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @throws \Exception
+     */
+    private function checkLiked(){
+        $playlists = $this->userService->currentUser()->getPlaylists();
+        $isPresent = $playlists->exists(function($key, $element){
+            return "Liked" === $element->getName();
+        });
+
+        if (!$isPresent){
+            throw new \Exception(ErrorMessage::PLAYLIST_IMMUTABLE);
         }
     }
 }
