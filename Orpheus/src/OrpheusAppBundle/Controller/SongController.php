@@ -198,6 +198,11 @@ class SongController extends Controller
     public function detailsAction(int $id, Request $request)
     {
         $song = $this->songService->getOneById($id);
+
+        if ($song === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         $count = $song->getPlayedCount() + 1;
 
         $song->setPlayedCount($count);

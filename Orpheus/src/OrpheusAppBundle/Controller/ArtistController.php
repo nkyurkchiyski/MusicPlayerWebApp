@@ -60,6 +60,11 @@ class ArtistController extends Controller
     public function detailsAction(int $id)
     {
         $artist = $this->artistService->getOneById($id);
+
+        if ($artist === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         return $this->render('artists/details.html.twig', ['artist' => $artist]);
     }
 

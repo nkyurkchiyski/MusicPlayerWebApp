@@ -40,6 +40,11 @@ class GenreController extends Controller
     public function detailsAction(int $id)
     {
         $genre = $this->genreService->getOneById($id);
+
+        if ($genre === null) {
+            return $this->redirectToRoute("orpheus_index");
+        }
+
         return $this->render('genres/details.html.twig', ['genre' => $genre]);
     }
 
