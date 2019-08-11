@@ -6,6 +6,7 @@ use OrpheusAppBundle\Entity\User;
 use OrpheusAppBundle\Form\UserType;
 use OrpheusAppBundle\Service\User\UserServiceInterface;
 use OrpheusAppBundle\Utils\ViolationsExtractor;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,6 +70,7 @@ class UserController extends Controller
     /**
      * @Route("/profile",name = "users_profile")
      * @Route("/users/details/{id}", name="users_details")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      * @param int $id
      * @return Response
      */
